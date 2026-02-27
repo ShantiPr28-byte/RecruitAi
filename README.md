@@ -104,8 +104,9 @@ RecruitAi/
 
 | Member | GitHub |
 |---|---|
+| Shanti Priya| [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
 | Shashank Rai | [@Shashankrai30](https://github.com/Shashankrai30) |
-| Shanti | [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
+
 
 ---
 
