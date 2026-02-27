@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recruiter Dashboard — RecruiteAi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c0a;
+    --surface: #0f1410;
+    --surface2: #141a15;
+    --border: #1a2119;
+    --border-light: #253124;
+    --accent: #00d4aa;
+    --accent2: #6c63ff;
+    --text: #e0ede8;
+    --muted: #5a7062;
+    --sidebar-w: 240px;
+    --danger: #ff6b6b;
+    --warning: #f59e0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 22px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+  .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 8px 20px 4px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; cursor: pointer;
+    transition: all 0.15s; color: var(--muted);
+    font-size: 14px; font-weight: 500;
+    text-decoration: none; position: relative;
+  }
+  .nav-item:hover { background: rgba(0,212,170,0.06); color: var(--text); }
+  .nav-item.active { background: rgba(0,212,170,0.1); color: var(--accent); }
+  .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); border-radius: 0 2px 2px 0; }
+  .nav-item .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar-user {
+    padding: 16px 20px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .user-avatar {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #00ffcc);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: #080c0a;
+  }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--accent); background: rgba(0,212,170,0.12); padding: 1px 7px; border-radius: 10px; display: inline-block; margin-top: 2px; }
+  .logout-btn { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; padding: 4px; transition: color 0.15s; }
+  .logout-btn:hover { color: var(--text); }
+  .credit { padding: 12px 20px; text-align: center; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); line-height: 1.6; }
+  .credit .heart { color: #f43f5e; display: inline-block; animation: heartbeat 1.4s ease-in-out infinite; }
+  .credit .names { font-weight: 700; color: rgba(224,237,232,0.65); }
+  @keyframes heartbeat { 0%,100%{transform:scale(1);} 14%{transform:scale(1.35);} 28%{transform:scale(1);} 42%{transform:scale(1.2);} 70%{transform:scale(1);} }
+
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar {
+    padding: 18px 28px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+  .topbar-actions { display: flex; gap: 10px; }
+
+  .btn-primary {
+    background: var(--accent); color: #080c0a;
+    border: none; border-radius: 10px; padding: 9px 18px;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #00e6b8; transform: translateY(-1px); }
+
+  .content { padding: 28px; flex: 1; }
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+  .teal { color: var(--accent); }
+  .purple { color: var(--accent2); }
+  .amber { color: var(--warning); }
+  .red { color: var(--danger); }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+
+  /* Job Cards */
+  .job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .job-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px;
+    transition: all 0.2s; cursor: pointer;
+  }
+  .job-card:hover { border-color: var(--border-light); }
+  .jc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .jc-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .jc-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .jc-stats { display: flex; gap: 14px; margin: 12px 0; }
+  .jcs { text-align: center; }
+  .jcs-val { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--accent); }
+  .jcs-label { font-size: 11px; color: var(--muted); }
+  .jc-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+  .tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+  .tag-teal { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .tag-purple { background: rgba(108,99,255,0.12); color: var(--accent2); }
+  .tag-amber { background: rgba(245,158,11,0.12); color: var(--warning); }
+  .tag-gray { background: rgba(90,112,98,0.15); color: var(--muted); }
+
+  .btn-sm { padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .btn-teal { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .btn-teal:hover { background: rgba(0,212,170,0.2); }
+  .btn-danger { background: rgba(255,107,107,0.12); color: var(--danger); }
+  .btn-danger:hover { background: rgba(255,107,107,0.2); }
+  .btn-purple { background: rgba(108,99,255,0.12); color: var(--accent2); }
+  .btn-purple:hover { background: rgba(108,99,255,0.2); }
+
+  /* Applicants Table */
+  .table-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0,212,170,0.03); }
+
+  .status-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .badge-APPLIED { background: rgba(108,99,255,0.12); color: var(--accent2); }
+  .badge-SHORTLISTED { background: rgba(96,165,250,0.12); color: #60a5fa; }
+  .badge-INTERVIEW { background: rgba(245,158,11,0.12); color: var(--warning); }
+  .badge-SELECTED { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .badge-REJECTED { background: rgba(255,107,107,0.12); color: var(--danger); }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+  .modal { background: var(--surface); border: 1px solid var(--border-light); border-radius: 18px; padding: 32px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .field label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input, .field select, .field textarea {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 9px;
+    padding: 10px 12px; color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+  .btn-cancel { background: var(--bg); border: 1px solid var(--border); color: var(--muted); border-radius: 9px; padding: 9px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+  .btn-cancel:hover { color: var(--text); }
+
+  .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--border-light) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; height: 80px; margin-bottom: 12px; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-family: 'Syne', sans-serif; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px 18px; font-size: 13px; display: flex; align-items: center; gap: 10px; z-index: 999; transform: translateY(80px); transition: transform 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  .toast.show { transform: translateY(0); }
+
+  .job-filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-select { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; }
+
+  @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .job-grid { grid-template-columns: 1fr; } }
+
+  /* ── AI Applicant Ranking ─────────────────────── */
+  .ai-rank-btn { padding:6px 14px; background:linear-gradient(135deg,#6c63ff,#00d4aa); color:#fff; border:none; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .ai-rank-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+  .ai-rank-1 { background:rgba(0,212,170,0.15); color:#00d4aa; border:1px solid rgba(0,212,170,0.3); }
+  .ai-rank-2 { background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); }
+  .ai-rank-3 { background:rgba(255,107,107,0.15); color:#ff6b6b; border:1px solid rgba(255,107,107,0.3); }
+  .ai-ranked-list { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .ai-candidate-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:14px; }
+  .ai-rank-number { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:14px; font-weight:800; flex-shrink:0; }
+  .ai-cand-info { flex:1; }
+  .ai-cand-name { font-size:14px; font-weight:600; }
+  .ai-cand-meta { font-size:12px; color:var(--muted); margin-top:2px; }
+  .ai-cand-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .ai-cand-verdict { font-size:11px; color:var(--muted); margin-top:6px; font-style:italic; }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎯</div>
+    <span class="logo-text">RecruiteAi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</a>
+    <div class="nav-label">Recruitment</div>
+    <a class="nav-item" onclick="showPage('jobs')"><span class="icon">💼</span> Job Postings</a>
+    <a class="nav-item" onclick="showPage('applicants')"><span class="icon">👥</span> Applicants</a>
+    <a class="nav-item" onclick="showPage('shortlisted')"><span class="icon">⭐</span> Shortlisted</a>
+    <div class="nav-label">Assessment</div>
+    <a class="nav-item" onclick="showPage('tests')"><span class="icon">💻</span> Coding Tests</a>
+    <a class="nav-item" onclick="showPage('results')"><span class="icon">📊</span> Test Results</a>
+    <div class="nav-label">Account</div>
+    <a class="nav-item" onclick="showPage('profile')"><span class="icon">🏢</span> Company Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-info">
+      <div class="user-name" id="user-name">Loading...</div>
+      <span class="user-role" id="user-company">Recruiter</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">⬆</button>
+  </div>
+  <div class="credit">
+    Made with <span class="heart">❤️</span> by<br>
+    <span class="names">Shanti &amp; Shashank</span>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn-primary" onclick="openPostJobModal()">+ Post Job</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Active Jobs</div><div class="stat-value teal" id="stat-jobs">—</div><div class="stat-sub">Open positions</div></div>
+        <div class="stat-card"><div class="stat-label">Total Applicants</div><div class="stat-value purple" id="stat-applicants">—</div><div class="stat-sub">Across all jobs</div></div>
+        <div class="stat-card"><div class="stat-label">Shortlisted</div><div class="stat-value amber" id="stat-shortlisted">—</div><div class="stat-sub">Candidates</div></div>
+        <div class="stat-card"><div class="stat-label">Selected</div><div class="stat-value teal" id="stat-selected">—</div><div class="stat-sub">Offers extended</div></div>
+      </div>
+
+      <div class="section-header"><span class="section-title">Recent Job Postings</span><a class="view-all" onclick="showPage('jobs')" style="font-size:12px;color:var(--accent);cursor:pointer;">View all</a></div>
+      <div class="job-grid" id="dash-jobs"><div class="skeleton"></div><div class="skeleton"></div></div>
+
+      <div style="margin-top:24px;" class="section-header"><span class="section-title">Recent Applicants</span><a class="view-all" onclick="showPage('applicants')" style="font-size:12px;color:var(--accent);cursor:pointer;">View all</a></div>
+      <div class="table-wrapper" id="dash-applicants">
+        <div class="skeleton" style="margin:14px;"></div>
+        <div class="skeleton" style="margin:14px;"></div>
+      </div>
+    </div>
+
+    <!-- JOBS PAGE -->
+    <div class="page" id="page-jobs">
+      <div class="job-grid" id="jobs-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    </div>
+
+    <!-- APPLICANTS PAGE -->
+    <div class="page" id="page-applicants">
+      <div class="job-filter-bar">
+        <select class="filter-select" id="job-filter" onchange="filterApplicants()">
+          <option value="">All Jobs</option>
+        </select>
+        <select class="filter-select" id="status-filter" onchange="filterApplicants()">
+          <option value="">All Statuses</option>
+          <option>APPLIED</option>
+          <option>SHORTLISTED</option>
+          <option>INTERVIEW</option>
+          <option>SELECTED</option>
+          <option>REJECTED</option>
+        </select>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Candidate</th><th>Job</th><th>CGPA</th><th>Branch</th><th>Applied</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="applicants-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SHORTLISTED PAGE -->
+    <div class="page" id="page-shortlisted">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Candidate</th><th>Job</th><th>CGPA</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="shortlisted-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TESTS PAGE -->
+    <div class="page" id="page-tests">
+      <div class="section-header">
+        <span class="section-title">Coding Tests</span>
+        <button class="btn-primary" onclick="openTestModal()">+ Create Test</button>
+      </div>
+      <div class="job-grid" id="tests-grid"><div class="skeleton"></div></div>
+    </div>
+
+    <!-- RESULTS PAGE -->
+    <div class="page" id="page-results">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Student</th><th>Test</th><th>Score</th><th>Submitted</th><th>Status</th></tr></thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div class="page" id="page-profile">
+      <div style="max-width:600px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;">
+          <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:20px;">Company Profile</div>
+          <div class="field"><label>Company Name</label><input id="p-company" type="text" /></div>
+          <div class="field-row">
+            <div class="field"><label>Industry</label><input id="p-industry" type="text" /></div>
+            <div class="field"><label>Company Size</label><input id="p-size" type="text" /></div>
+          </div>
+          <div class="field"><label>Website</label><input id="p-website" type="url" /></div>
+          <div class="field"><label>Description</label><textarea id="p-desc"></textarea></div>
+          <button class="btn-primary" onclick="saveProfile()" style="margin-top:8px;">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Post Job Modal -->
+<div class="modal-overlay" id="job-modal">
+  <div class="modal">
+    <div class="modal-title">Post New Job</div>
+    <div class="modal-sub">Fill in the details to create a job posting</div>
+    <div class="field"><label>Job Title</label><input id="j-title" type="text" placeholder="Software Engineer Intern" /></div>
+    <div class="field"><label>Job Description</label><textarea id="j-desc" placeholder="Describe the role, responsibilities..."></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Location</label><input id="j-location" type="text" placeholder="Bangalore / Remote" /></div>
+      <div class="field"><label>Job Type</label>
+        <select id="j-type"><option>Full Time</option><option>Internship</option><option>Part Time</option></select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Package (LPA)</label><input id="j-package" type="number" placeholder="12" /></div>
+      <div class="field"><label>Min CGPA</label><input id="j-cgpa" type="number" step="0.1" placeholder="7.0" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Eligible Branches</label><input id="j-branches" type="text" placeholder="CS, IT, ECE" /></div>
+      <div class="field"><label>Openings</label><input id="j-openings" type="number" placeholder="5" /></div>
+    </div>
+    <div class="field"><label>Last Date to Apply</label><input id="j-deadline" type="date" /></div>
+    <div class="field"><label>Required Skills</label><input id="j-skills" type="text" placeholder="Java, Spring Boot, SQL" /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('job-modal')">Cancel</button>
+      <button class="btn-primary" onclick="postJob()">Post Job →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Test Modal -->
+<div class="modal-overlay" id="test-modal">
+  <div class="modal">
+    <div class="modal-title">Create Coding Test</div>
+    <div class="modal-sub">Assign a test to shortlisted candidates</div>
+    <div class="field"><label>Test Title</label><input id="t-title" type="text" placeholder="DSA Round 1" /></div>
+    <div class="field"><label>Description</label><textarea id="t-desc" placeholder="Test instructions..."></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Duration (minutes)</label><input id="t-duration" type="number" placeholder="60" /></div>
+      <div class="field"><label>Deadline</label><input id="t-deadline" type="date" /></div>
+    </div>
+    <div class="field"><label>Job Posting</label><select id="t-job"></select></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('test-modal')">Cancel</button>
+      <button class="btn-primary" onclick="createTest()">Create Test →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+const API = 'https://recruitai-pu35.onrender.com';
+let token = localStorage.getItem('token');
+let allApplicants = [];
+let jobsList = [];
+
+function headers() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
+
+async function api(path, opts = {}) {
+  try {
+    const res = await fetch(`${API}${path}`, { headers: headers(), ...opts });
+    if (res.status === 401) { logout(); return null; }
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.error(`API error ${res.status} on ${path}:`, errText);
+      return null;
+    }
+    const text = await res.text();
+    if (!text) return true;
+    try {
+      const json = JSON.parse(text);
+      if (json && typeof json === 'object' && 'success' in json) {
+        return json.success ? (json.data !== undefined ? json.data : true) : null;
+      }
+      return json;
+    } catch { return true; }
+  } catch (e) {
+    console.error('Network error on', path, e);
+    return null;
+  }
+}
+
+function logout() { localStorage.removeItem('token'); window.location.href = 'index.html'; }
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  const icon = type === 'success' ? '✓' : type === 'warn' ? '⚠' : '✗'; document.getElementById('toast-msg').textContent = icon + ' ' + msg;
+  t.className = `toast show${type === 'error' ? ' error' : type === 'warn' ? ' warn' : ''}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  document.querySelector(`[onclick="showPage('${name}')"]`)?.classList.add('active');
+  const titles = { dashboard:'Dashboard', jobs:'Job Postings', applicants:'Applicants', shortlisted:'Shortlisted', tests:'Coding Tests', results:'Test Results', profile:'Company Profile' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+  if (name === 'jobs') loadJobs();
+  else if (name === 'applicants') loadAllApplicants();
+  else if (name === 'shortlisted') loadShortlisted();
+  else if (name === 'tests') loadTests();
+  else if (name === 'results') loadResults();
+}
+
+function initials(name) { return (name || '?').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase(); }
+
+async function init() {
+  if (!token) { window.location.href = 'index.html'; return; }
+  const me = await api('/api/recruiter/profile');
+  // me is already unwrapped from ApiResponse by the api() helper
+  // Backend returns: { id, name, email, companyName, industry, website, isApproved, status }
+  const name = me?.name || localStorage.getItem('name') || 'Recruiter';
+  const company = (me?.companyName && me.companyName !== '') ? me.companyName : '';
+
+  // Show company name as primary, personal name as sub-label
+  // If no company set yet, prompt recruiter to fill it in
+  document.getElementById('user-name').textContent = company || name;
+  document.getElementById('user-avatar').textContent = initials(company || name);
+  document.getElementById('user-company').textContent = company ? name : 'Set Company Name →';
+
+  if (document.getElementById('p-company')) document.getElementById('p-company').value = company;
+  if (me?.industry && document.getElementById('p-industry')) document.getElementById('p-industry').value = me.industry;
+  if (me?.website && document.getElementById('p-website')) document.getElementById('p-website').value = me.website;
+
+  // Show approval status warning if pending
+  if (me?.status === 'PENDING' || me?.isApproved === false) {
+    showToast('Your account is pending admin approval', 'warn');
+  }
+  loadDashboard();
+}
+
+async function loadDashboard() {
+  const [jobs, apps] = await Promise.all([api('/api/recruiter/jobs'), api('/api/recruiter/applications')]);
+  jobsList = jobs || [];
+  allApplicants = apps || [];
+  document.getElementById('stat-jobs').textContent = jobsList.filter(j => j.active !== false).length;
+  document.getElementById('stat-applicants').textContent = allApplicants.length;
+  document.getElementById('stat-shortlisted').textContent = allApplicants.filter(a => ['SHORTLISTED','INTERVIEW'].includes(a.status)).length;
+  document.getElementById('stat-selected').textContent = allApplicants.filter(a => a.status === 'SELECTED').length;
+  renderJobCards(jobsList.filter(j => j.active !== false).slice(0,4), 'dash-jobs');
+  renderApplicantsTable(allApplicants.slice(0,5), 'dash-applicants');
+  populateJobFilters();
+}
+
+function renderJobCards(jobs, containerId) {
+  const el = document.getElementById(containerId);
+  if (!jobs?.length) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">💼</div><div class="empty-title">No jobs posted yet</div><p>Click "Post Job" to get started</p></div>`; return; }
+  el.innerHTML = jobs.map(j => {
+    const applicants = allApplicants.filter(a => a.jobPosting?.id === j.id || a.jobId === j.id);
+    return `<div class="job-card">
+      <div class="jc-header">
+        <div>
+          <div class="jc-title">${j.title}</div>
+          <div class="jc-meta">${j.location || ''} ${j.jobType ? '· ' + j.jobType : ''}</div>
+        </div>
+        ${j.jobStatus === 'PENDING_APPROVAL'
+          ? '<span class="tag tag-amber">⏳ Pending Approval</span>'
+          : j.jobStatus === 'REJECTED'
+          ? '<span class="tag tag-red">✗ Rejected by Admin</span>'
+          : j.active !== false
+          ? '<span class="tag tag-teal">✓ Active</span>'
+          : '<span class="tag tag-gray">Closed</span>'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        ${j.package ? `<span class="tag tag-teal">💰 ${j.package} LPA</span>` : ''}
+        ${j.minCgpa ? `<span class="tag tag-purple">Min ${j.minCgpa} CGPA</span>` : ''}
+        ${j.deadline ? `<span class="tag tag-amber">📅 ${new Date(j.deadline).toLocaleDateString()}</span>` : ''}
+      </div>
+      <div class="jc-stats">
+        <div class="jcs"><div class="jcs-val">${applicants.length}</div><div class="jcs-label">Applied</div></div>
+        <div class="jcs"><div class="jcs-val">${applicants.filter(a=>a.status==='SHORTLISTED').length}</div><div class="jcs-label">Shortlisted</div></div>
+        <div class="jcs"><div class="jcs-val">${applicants.filter(a=>a.status==='SELECTED').length}</div><div class="jcs-label">Selected</div></div>
+      </div>
+      <div class="jc-actions">
+        <button class="btn-sm btn-teal" onclick="viewApplicantsForJob(${j.id})">View Applicants</button>
+        <button class="ai-rank-btn" onclick="aiRankApplicants(${j.id}, '${j.title?.replace(/'/g,"'")}')">🤖 AI Rank</button>
+        <button class="btn-sm btn-purple" onclick="shortlistAll(${j.id})">Auto Shortlist</button>
+        ${j.jobStatus === 'REJECTED'
+          ? `<button class="btn-sm btn-approve" onclick="resubmitJob(${j.id})">🔄 Resubmit</button>`
+          : ''}
+        <button class="btn-sm btn-danger" onclick="deleteJob(${j.id})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderApplicantsTable(apps, containerId) {
+  const el = document.getElementById(containerId);
+  if (!apps?.length) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No applicants yet</div></div>`; return; }
+  el.innerHTML = `<table><thead><tr><th>Candidate</th><th>Job</th><th>CGPA</th><th>Status</th><th>Actions</th></tr></thead><tbody>${
+    apps.map(a => `<tr>
+      <td><strong>${a.student?.name || a.studentName || '—'}</strong><br><small style="color:var(--muted)">${a.student?.email || a.email || ''}</small></td>
+      <td>${a.jobPosting?.title || a.jobTitle || '—'}</td>
+      <td>${a.student?.cgpa || '—'}</td>
+      <td><span class="status-badge badge-${a.status}">${a.status}</span></td>
+      <td>
+        <button class="btn-sm btn-teal" onclick="updateStatus(${a.id},'SHORTLISTED')">Shortlist</button>
+        <button class="btn-sm btn-purple" onclick="updateStatus(${a.id},'INTERVIEW')">Interview</button>
+        <button class="btn-sm btn-danger" onclick="updateStatus(${a.id},'REJECTED')">Reject</button>
+      </td>
+    </tr>`).join('')
+  }</tbody></table>`;
+}
+
+async function loadJobs() {
+  const jobs = await api('/api/recruiter/jobs');
+  jobsList = jobs || [];
+  // Only show active jobs — closed/deleted ones are filtered out
+  renderJobCards(jobsList.filter(j => j.active !== false), 'jobs-grid');
+}
+
+async function loadAllApplicants() {
+  const apps = await api('/api/recruiter/applications');
+  allApplicants = apps || [];
+  renderApplicantsTable(allApplicants, 'applicants-body');
+  // Fix: render into tbody directly
+  const tbody = document.getElementById('applicants-body');
+  if (!allApplicants.length) { tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="text-align:center;padding:30px;color:var(--muted);">No applicants found</td></tr>`; return; }
+  tbody.innerHTML = allApplicants.map(a => `<tr>
+    <td><strong>${a.student?.name || a.studentName || '—'}</strong><br><small style="color:var(--muted)">${a.student?.email || ''}</small></td>
+    <td>${a.jobPosting?.title || a.jobTitle || '—'}</td>
+    <td>${a.student?.cgpa || '—'}</td>
+    <td>${a.student?.branch || '—'}</td>
+    <td>${a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : '—'}</td>
+    <td><span class="status-badge badge-${a.status}">${a.status}</span></td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="btn-sm btn-teal" onclick="updateStatus(${a.id},'SHORTLISTED')">Shortlist</button>
+      <button class="btn-sm btn-purple" onclick="updateStatus(${a.id},'INTERVIEW')">Interview</button>
+      <button class="btn-sm btn-teal" style="background:rgba(0,212,170,0.2)" onclick="updateStatus(${a.id},'SELECTED')">Select</button>
+      <button class="btn-sm btn-danger" onclick="updateStatus(${a.id},'REJECTED')">Reject</button>
+    </td>
+  </tr>`).join('');
+  populateJobFilters();
+}
+
+function populateJobFilters() {
+  const sel = document.getElementById('job-filter');
+  if (!sel) return;
+  sel.innerHTML = `<option value="">All Jobs</option>` + jobsList.map(j => `<option value="${j.id}">${j.title}</option>`).join('');
+}
+
+function filterApplicants() {
+  const jobId = document.getElementById('job-filter').value;
+  const status = document.getElementById('status-filter').value;
+  let filtered = allApplicants;
+  if (jobId) filtered = filtered.filter(a => String(a.jobPosting?.id || a.jobId) === jobId);
+  if (status) filtered = filtered.filter(a => a.status === status);
+  const tbody = document.getElementById('applicants-body');
+  if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">No results found</td></tr>`; return; }
+  tbody.innerHTML = filtered.map(a => `<tr>
+    <td><strong>${a.student?.name || a.studentName || '—'}</strong></td>
+    <td>${a.jobPosting?.title || a.jobTitle || '—'}</td>
+    <td>${a.student?.cgpa || '—'}</td>
+    <td>${a.student?.branch || '—'}</td>
+    <td>${a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : '—'}</td>
+    <td><span class="status-badge badge-${a.status}">${a.status}</span></td>
+    <td style="display:flex;gap:6px;">
+      <button class="btn-sm btn-teal" onclick="updateStatus(${a.id},'SHORTLISTED')">Shortlist</button>
+      <button class="btn-sm btn-danger" onclick="updateStatus(${a.id},'REJECTED')">Reject</button>
+    </td>
+  </tr>`).join('');
+}
+
+function viewApplicantsForJob(jobId) {
+  showPage('applicants');
+  setTimeout(() => {
+    document.getElementById('job-filter').value = jobId;
+    filterApplicants();
+  }, 100);
+}
+
+async function loadShortlisted() {
+  const apps = await api('/api/recruiter/applications');
+  const shortlisted = (apps || []).filter(a => ['SHORTLISTED','INTERVIEW','SELECTED'].includes(a.status));
+  const tbody = document.getElementById('shortlisted-body');
+  if (!shortlisted.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">No shortlisted candidates</td></tr>`; return; }
+  tbody.innerHTML = shortlisted.map(a => `<tr>
+    <td><strong>${a.student?.name || '—'}</strong><br><small style="color:var(--muted)">${a.student?.email || ''}</small></td>
+    <td>${a.jobPosting?.title || '—'}</td>
+    <td>${a.student?.cgpa || '—'}</td>
+    <td><span class="status-badge badge-${a.status}">${a.status}</span></td>
+    <td style="display:flex;gap:6px;">
+      <button class="btn-sm btn-teal" onclick="updateStatus(${a.id},'INTERVIEW')">→ Interview</button>
+      <button class="btn-sm btn-teal" style="background:rgba(0,212,170,0.2)" onclick="updateStatus(${a.id},'SELECTED')">Select ✓</button>
+      <button class="btn-sm btn-danger" onclick="updateStatus(${a.id},'REJECTED')">Reject</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function updateStatus(appId, status) {
+  const res = await api(`/api/recruiter/applications/${appId}/status?status=${status}`, { method: 'PUT' });
+  if (res !== null || true) { // optimistic
+    showToast(`Status updated to ${status}`);
+    loadDashboard();
+    loadAllApplicants();
+  }
+}
+
+async function shortlistAll(jobId) {
+  const res = await api(`/api/recruiter/jobs/${jobId}/shortlist`, { method: 'POST' });
+  showToast(res ? 'Auto-shortlisting done!' : 'Shortlisting triggered');
+  loadDashboard();
+}
+
+async function resubmitJob(jobId) {
+  const res = await api(`/api/recruiter/jobs/${jobId}/resubmit`, { method: 'PUT' });
+  if (res !== null) {
+    showToast('Job resubmitted for admin approval!');
+    loadDashboard();
+    loadJobs();
+  } else showToast('Failed to resubmit', 'error');
+}
+
+async function deleteJob(jobId) {
+  if (!confirm('Close this job posting? It will no longer appear in listings.')) return;
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API}/api/recruiter/jobs/${jobId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    });
+    const body = await res.text();
+    if (res.ok) {
+      // Remove from local list immediately for instant UI update
+      jobsList = jobsList.filter(j => j.id !== jobId);
+      showToast('Job closed successfully');
+      loadDashboard();
+      loadJobs();
+    } else {
+      let msg = `Error ${res.status}`;
+      try { msg = JSON.parse(body).message || msg; } catch {}
+      showToast(msg, 'error');
+    }
+  } catch (e) {
+    showToast('Network error — is backend running?', 'error');
+  }
+}
+
+async function loadTests() {
+  const tests = await api('/api/recruiter/tests');
+  const el = document.getElementById('tests-grid');
+  if (!tests?.length) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">💻</div><div class="empty-title">No tests created yet</div><p>Create a coding test for shortlisted candidates</p></div>`; return; }
+  el.innerHTML = tests.map(t => `<div class="job-card">
+    <div class="jc-title">${t.title}</div>
+    <div class="jc-meta" style="margin-top:6px;">${t.description || ''}</div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <span class="tag tag-amber">⏱ ${t.durationMinutes || '?'} mins</span>
+      ${t.deadline ? `<span class="tag tag-gray">📅 ${new Date(t.deadline).toLocaleDateString()}</span>` : ''}
+    </div>
+  </div>`).join('');
+  const sel = document.getElementById('t-job');
+  if (sel) sel.innerHTML = jobsList.map(j => `<option value="${j.id}">${j.title}</option>`).join('');
+}
+
+async function loadResults() {
+  const res = await api('/api/recruiter/test-results');
+  const tbody = document.getElementById('results-body');
+  if (!res?.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted);">No test results yet</td></tr>`; return; }
+  tbody.innerHTML = res.map(r => `<tr>
+    <td>${r.student?.name || '—'}</td>
+    <td>${r.codingTest?.title || '—'}</td>
+    <td><strong>${r.score ?? '—'}</strong></td>
+    <td>${r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : '—'}</td>
+    <td><span class="status-badge badge-${r.passed ? 'SELECTED' : 'REJECTED'}">${r.passed ? 'Passed' : 'Failed'}</span></td>
+  </tr>`).join('');
+}
+
+function openPostJobModal() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('j-deadline').setAttribute('min', today);
+  document.getElementById('job-modal').classList.add('show');
+}
+
+function openTestModal() {
+  const sel = document.getElementById('t-job');
+  sel.innerHTML = jobsList.map(j => `<option value="${j.id}">${j.title}</option>`).join('');
+  document.getElementById('test-modal').classList.add('show');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+async function postJob() {
+  const payload = {
+    title: document.getElementById('j-title').value,
+    description: document.getElementById('j-desc').value,
+    location: document.getElementById('j-location').value,
+    jobType: document.getElementById('j-type').value,
+    packageLpa: parseFloat(document.getElementById('j-package').value) || undefined,
+    minCgpa: parseFloat(document.getElementById('j-cgpa').value) || undefined,
+    eligibleBranches: document.getElementById('j-branches').value,
+    openings: parseInt(document.getElementById('j-openings').value) || undefined,
+    deadline: document.getElementById('j-deadline').value || undefined,
+    requiredSkills: document.getElementById('j-skills').value
+  };
+  if (!payload.title) { showToast('Job title is required', 'error'); return; }
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API}/api/recruiter/jobs`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const body = await res.text();
+    if (res.ok) {
+      closeModal('job-modal');
+      showToast('Job posted successfully!');
+      loadDashboard();
+      loadJobs();
+    } else {
+      let msg = 'Failed to post job';
+      try { msg = JSON.parse(body).message || msg; } catch {}
+      showToast(msg, 'error');
+    }
+  } catch (e) {
+    showToast('Network error — is backend running?', 'error');
+  }
+}
+
+async function createTest() {
+  const payload = {
+    title: document.getElementById('t-title').value,
+    description: document.getElementById('t-desc').value,
+    durationMinutes: parseInt(document.getElementById('t-duration').value) || 60,
+    deadline: document.getElementById('t-deadline').value || undefined,
+    jobId: document.getElementById('t-job').value
+  };
+  const res = await api('/api/recruiter/tests', { method: 'POST', body: JSON.stringify(payload) });
+  if (res) { closeModal('test-modal'); showToast('Test created!'); loadTests(); }
+  else showToast('Failed to create test', 'error');
+}
+
+async function saveProfile() {
+  const payload = {
+    companyName: document.getElementById('p-company').value,
+    industry: document.getElementById('p-industry').value,
+    companySize: document.getElementById('p-size').value,
+    website: document.getElementById('p-website').value,
+    description: document.getElementById('p-desc').value
+  };
+  await api('/api/recruiter/profile', { method: 'PUT', body: JSON.stringify(payload) });
+  showToast('Profile saved!');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
+init();
+
+// ══════════════════════════════════════════
+//  AI APPLICANT RANKING — Recruiter Dashboard
+// ══════════════════════════════════════════
+async function aiRankApplicants(jobId, jobTitle) {
+  // Get job details — type-safe compare
+  const jobs = jobsList || [];
+  const job = jobs.find(j => String(j.id) === String(jobId));
+
+  // Load applicants if not yet loaded
+  if (!allApplicants.length) {
+    const apps = await api('/api/recruiter/applications');
+    allApplicants = apps || [];
+  }
+
+  // Type-safe filter
+  const allApps = allApplicants.filter(a =>
+    String(a.jobPosting?.id) === String(jobId) ||
+    String(a.jobId) === String(jobId)
+  );
+  if (!allApps.length) { showToast('No applicants for this job yet', 'warn'); return; }
+
+  showToast('🤖 AI is ranking applicants...');
+
+  // Build ranked modal
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border-light);border-radius:16px;padding:24px;width:560px;max-width:94vw;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <h3 style="font-family:'Syne',sans-serif;font-size:17px;">🤖 AI Applicant Ranking</h3>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">${jobTitle} · ${allApps.length} applicants</div>
+    <div id="ai-rank-content" style="text-align:center;padding:20px;color:var(--muted);">⏳ Analyzing applicants...</div>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  try {
+
+    const ranked = await api('/api/ai/rank-applicants', {
+      method: 'POST',
+      body: JSON.stringify({ job: job || {}, applicants: allApps })
+    });
+    if (!ranked || !Array.isArray(ranked)) throw new Error('No ranking response from server');
+
+    const rankContent = document.getElementById('ai-rank-content');
+    rankContent.innerHTML = `<div class="ai-ranked-list">${ranked.map((r, i) => {
+      const app = allApps.find(a => (a.student?.name || '').toLowerCase() === r.name?.toLowerCase());
+      const color = r.score>=75 ? '#00d4aa' : r.score>=50 ? '#f59e0b' : '#ff6b6b';
+      const recColor = r.recommendation==='HIRE' ? '#00d4aa' : r.recommendation==='CONSIDER' ? '#f59e0b' : '#ff6b6b';
+      return `<div class="ai-candidate-card">
+        <div class="ai-rank-number" style="background:${color}18;color:${color};">${r.rank}</div>
+        <div class="ai-cand-info">
+          <div class="ai-cand-name">${r.name}</div>
+          <div class="ai-cand-meta">Score: ${r.score}/100 · ${app?.student?.branch || ''} · CGPA: ${app?.student?.cgpa || 'N/A'}</div>
+          <div class="ai-cand-tags">
+            <span class="ai-rank-badge" style="background:${recColor}18;color:${recColor};border:1px solid ${recColor}30;">${r.recommendation}</span>
+            ${r.strengths ? `<span style="font-size:11px;color:var(--muted);">✓ ${r.strengths}</span>` : ''}
+          </div>
+          ${r.concern ? `<div class="ai-cand-verdict">⚠ ${r.concern}</div>` : ''}
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:${color};">${r.score}%</div>
+      </div>`;
+    }).join('')}</div>`;
+  } catch(e) {
+    document.getElementById('ai-rank-content').innerHTML = '<div style="color:#ff6b6b;text-align:center;">AI analysis failed. Please try again.</div>';
+    console.error(e);
+  }
+}
+
+</script>
+</body>
+</html>

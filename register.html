@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — SmartRecruit</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #03010a;
+  --a1: #a855f7;
+  --a2: #06b6d4;
+  --a3: #f97316;
+  --text: #f1f0ff;
+  --muted: rgba(241,240,255,0.38);
+  --border: rgba(255,255,255,0.07);
+  --surface: rgba(255,255,255,0.03);
+  --student: #a855f7;
+  --recruiter: #06b6d4;
+  --college: #f97316;
+  --danger: #f87171;
+  --success: #06b6d4;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── SVG BG ── */
+.svg-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* ── STARS ── */
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle linear infinite;
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* ── GRID OVERLAY ── */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(168,85,247,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168,85,247,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── CONTAINER ── */
+.container {
+  width: 100%;
+  max-width: 580px;
+  position: relative;
+  z-index: 10;
+  animation: cardIn 0.8s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── LOGO ── */
+.logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo-orb {
+  width: 46px; height: 46px;
+  border-radius: 13px;
+  position: relative;
+}
+.logo-orb-bg {
+  position: absolute; inset: 0;
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--a1), var(--a2));
+  box-shadow: 0 0 24px rgba(168,85,247,0.5), 0 0 48px rgba(168,85,247,0.2);
+}
+.logo-orb-inner {
+  position: relative; z-index: 1;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+
+.logo-words { text-align: left; line-height: 1.1; }
+.logo-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.logo-sub {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+/* ── CARD ── */
+.card-wrap {
+  border-radius: 28px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.5), rgba(6,182,212,0.3), rgba(249,115,22,0.3), rgba(168,85,247,0.4));
+  background-size: 300% 300%;
+  animation: borderSwirl 6s ease infinite;
+  box-shadow:
+    0 0 80px rgba(168,85,247,0.15),
+    0 32px 64px rgba(0,0,0,0.6);
+}
+
+@keyframes borderSwirl {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+.card {
+  background: linear-gradient(160deg, #0e0b1e 0%, #060412 100%);
+  border-radius: 27px;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanline */
+.card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(255,255,255,0.008) 2px, rgba(255,255,255,0.008) 4px
+  );
+  pointer-events: none; border-radius: 27px; z-index: 0;
+}
+
+/* Top shimmer line */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168,85,247,0.6), transparent);
+}
+
+/* ── HEADING ── */
+.card-heading {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 28px;
+}
+
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(168,85,247,0.1);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 30px;
+  padding: 5px 14px 5px 8px;
+  margin-bottom: 14px;
+}
+.live-dot-ring {
+  width: 16px; height: 16px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.live-dot-ring::before {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(168,85,247,0.4);
+  animation: ringPulse 2s ease-out infinite;
+}
+@keyframes ringPulse {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.live-dot {
+  width: 7px; height: 7px;
+  background: var(--a1);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--a1);
+  position: relative; z-index: 1;
+}
+.live-label {
+  font-size: 11px; font-weight: 700;
+  color: var(--a1);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+h1 .grad {
+  background: linear-gradient(90deg, var(--a1), var(--a2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ── ROLE SELECTOR ── */
+.role-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.role-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  color: var(--muted);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+.role-btn .role-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+.role-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text); background: rgba(255,255,255,0.05); }
+
+.role-btn.active[data-role="student"] {
+  border-color: var(--student);
+  background: rgba(168,85,247,0.1);
+  color: var(--student);
+  box-shadow: 0 0 20px rgba(168,85,247,0.2);
+}
+.role-btn.active[data-role="recruiter"] {
+  border-color: var(--recruiter);
+  background: rgba(6,182,212,0.1);
+  color: var(--recruiter);
+  box-shadow: 0 0 20px rgba(6,182,212,0.2);
+}
+.role-btn.active[data-role="college"] {
+  border-color: var(--college);
+  background: rgba(249,115,22,0.1);
+  color: var(--college);
+  box-shadow: 0 0 20px rgba(249,115,22,0.2);
+}
+
+/* ── FORM SECTIONS ── */
+.form-section { display: none; animation: fadeUp 0.3s ease; position: relative; z-index: 1; }
+.form-section.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgba(241,240,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.input-wrap { position: relative; }
+
+.input-glow {
+  position: absolute; inset: 0;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px var(--a1), 0 0 20px rgba(168,85,247,0.2);
+}
+.input-wrap:focus-within .input-glow { opacity: 1; }
+
+input, select {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.25s, background 0.25s;
+  position: relative;
+  z-index: 1;
+}
+input:focus, select:focus {
+  background: rgba(168,85,247,0.06);
+  border-color: transparent;
+}
+input::placeholder { color: rgba(241,240,255,0.18); }
+select option { background: #0e0b1e; color: var(--text); }
+
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 20px 0;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 22px;
+  letter-spacing: 0.2px;
+  position: relative;
+  overflow: hidden;
+  color: white;
+}
+
+.btn-ripple {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: btnRipple 3s ease-in-out infinite;
+}
+@keyframes btnRipple {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+.btn-student {
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  background-size: 200%;
+  animation: btnGrad 4s linear infinite;
+  box-shadow: 0 4px 24px rgba(168,85,247,0.4);
+}
+.btn-recruiter {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  background-size: 200%;
+  animation: btnGrad 4s linear infinite;
+  box-shadow: 0 4px 24px rgba(6,182,212,0.4);
+  color: #0e0b1e;
+}
+.btn-college {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  background-size: 200%;
+  animation: btnGrad 4s linear infinite;
+  box-shadow: 0 4px 24px rgba(249,115,22,0.4);
+  color: #0e0b1e;
+}
+
+@keyframes btnGrad {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.btn:active { transform: translateY(0); }
+.btn.loading { opacity: 0.7; pointer-events: none; animation: none; }
+
+/* ── MESSAGES ── */
+.error-msg {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: var(--danger);
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 12px;
+  display: none;
+}
+.success-msg {
+  background: rgba(6,182,212,0.1);
+  border: 1px solid rgba(6,182,212,0.25);
+  color: var(--success);
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 12px;
+  display: none;
+}
+
+/* ── BOTTOM LINK ── */
+.login-link {
+  text-align: center;
+  margin-top: 22px;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+.login-link a {
+  color: var(--a2);
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s;
+}
+.login-link a:hover { color: #67e8f9; }
+
+.spinner {
+  display: inline-block;
+  width: 15px; height: 15px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .card { padding: 28px 20px; }
+  h1 { font-size: 24px; }
+}
+
+  .invite-field {
+    display: none;
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .invite-field.show { display: block; }
+  .invite-label {
+    font-size: 11px; font-weight: 700; color: #f59e0b;
+    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .invite-input {
+    width: 100%; background: var(--bg, #090810); border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 8px; padding: 10px 12px; color: var(--text, #ece8ff);
+    font-family: inherit; font-size: 13px; outline: none; letter-spacing: 2px;
+    transition: border-color 0.2s;
+  }
+  .invite-input:focus { border-color: #f59e0b; }
+  .invite-hint { font-size: 11px; color: rgba(245,158,11,0.7); margin-top: 6px; }
+
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<svg class="svg-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="g1" cx="30%" cy="30%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#03010a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="70%" cy="70%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#03010a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g3" cx="80%" cy="20%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#03010a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="900" fill="#03010a"/>
+  <ellipse cx="350" cy="250" rx="600" ry="500" fill="url(#g1)">
+    <animateTransform attributeName="transform" type="translate" values="0,0;60,40;0,0" dur="18s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="1100" cy="700" rx="550" ry="480" fill="url(#g2)">
+    <animateTransform attributeName="transform" type="translate" values="0,0;-50,-30;0,0" dur="22s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="1200" cy="150" rx="380" ry="350" fill="url(#g3)">
+    <animateTransform attributeName="transform" type="translate" values="0,0;-40,50;0,0" dur="15s" repeatCount="indefinite"/>
+  </ellipse>
+</svg>
+
+<div class="stars" id="stars"></div>
+<div class="grid-overlay"></div>
+
+<div class="container">
+  <!-- Logo -->
+  <div class="logo">
+    <a class="logo-mark" href="index.html">
+      <div class="logo-orb">
+        <div class="logo-orb-bg"></div>
+        <div class="logo-orb-inner">🎯</div>
+      </div>
+      <div class="logo-words">
+        <div class="logo-name">RecruitAi</div>
+        <div class="logo-sub">Campus Placement Portal</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card-wrap">
+    <div class="card">
+
+      <!-- Heading -->
+      <div class="card-heading">
+        <div class="live-pill">
+          <div class="live-dot-ring"><div class="live-dot"></div></div>
+          <span class="live-label">Free Registration</span>
+        </div>
+        <h1>Create your <span class="grad">account</span></h1>
+        <p class="subtitle">Join as a student, recruiter, or college admin</p>
+      </div>
+
+      <!-- Role Selector -->
+      <div class="role-selector">
+        <button class="role-btn active" data-role="student" onclick="selectRole('student')">
+          <span class="role-icon">🎓</span> Student
+        </button>
+        <button class="role-btn" data-role="recruiter" onclick="selectRole('recruiter')">
+          <span class="role-icon">🏢</span> Recruiter
+        </button>
+        <button class="role-btn" data-role="college" onclick="selectRole('college')">
+          <span class="role-icon">🏛️</span> College
+        </button>
+      </div>
+
+      <!-- Student Form -->
+      <div class="form-section active" id="form-student">
+        <div class="section-label">Account Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="s-fname" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="s-lname" placeholder=""/></div>
+          </div>
+          <div class="form-group full">
+            <label>Email Address</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="email" id="s-email" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="password" id="s-password" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="password" id="s-cpassword" placeholder=""/></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Academic Details</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>College Name</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="s-college" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Branch</label>
+            <div class="input-wrap"><div class="input-glow"></div>
+              <select id="s-branch">
+                <option value="">Select Branch</option>
+                <option>Computer Science</option>
+                <option>Information Technology</option>
+                <option>Electronics</option>
+                <option>Mechanical</option>
+                <option>Civil</option>
+                <option>Electrical</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>CGPA</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="number" id="s-cgpa" step="0.01" min="0" max="10" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Graduation Year</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="number" id="s-year" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="tel" id="s-phone" placeholder=""/></div>
+          </div>
+        </div>
+        <div id="s-error" class="error-msg"></div>
+        <div id="s-success" class="success-msg"></div>
+        <button class="btn btn-student" onclick="register('STUDENT')">
+          <div class="btn-ripple"></div>Create Student Account →
+        </button>
+      </div>
+
+      <!-- Recruiter Form -->
+      <div class="form-section" id="form-recruiter">
+        <div class="section-label">Account Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Your Name</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="r-name" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Designation</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="r-designation" placeholder=""/></div>
+          </div>
+          <div class="form-group full">
+            <label>Work Email</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="email" id="r-email" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="password" id="r-password" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="password" id="r-cpassword" placeholder=""/></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Company Details</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Company Name</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="r-company" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Industry</label>
+            <div class="input-wrap"><div class="input-glow"></div>
+              <select id="r-industry">
+                <option value="">Select Industry</option>
+                <option>Information Technology</option>
+                <option>Finance & Banking</option>
+                <option>Manufacturing</option>
+                <option>Consulting</option>
+                <option>E-Commerce</option>
+                <option>Healthcare</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Company Size</label>
+            <div class="input-wrap"><div class="input-glow"></div>
+              <select id="r-size">
+                <option value="">Select Size</option>
+                <option>1–50</option>
+                <option>51–200</option>
+                <option>201–1000</option>
+                <option>1000+</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Company Website</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="url" id="r-website" placeholder=""/></div>
+          </div>
+        </div>
+        <div class="invite-field show" style="margin-bottom:16px;">
+          <div class="invite-label">🔑 Invite Code Required</div>
+          <input class="invite-input" type="password" id="r-invite-code" placeholder="Enter your invite code" autocomplete="off" />
+          <div class="invite-hint">Contact the administrator to get your invite code</div>
+        </div>
+        <div id="r-error" class="error-msg"></div>
+        <div id="r-success" class="success-msg"></div>
+        <button class="btn btn-recruiter" onclick="register('RECRUITER')">
+          <div class="btn-ripple"></div>Create Recruiter Account →
+        </button>
+      </div>
+
+      <!-- College Form -->
+      <div class="form-section" id="form-college">
+        <div class="section-label">Admin Account</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Admin Name</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="c-name" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="tel" id="c-phone" placeholder=""/></div>
+          </div>
+          <div class="form-group full">
+            <label>Official Email</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="email" id="c-email" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="password" id="c-password" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="password" id="c-cpassword" placeholder=""/></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">College Details</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>College Name</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="c-college" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="c-city" placeholder=""/></div>
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="text" id="c-state" placeholder=""/></div>
+          </div>
+          <div class="form-group full">
+            <label>College Website</label>
+            <div class="input-wrap"><div class="input-glow"></div><input type="url" id="c-website" placeholder=""/></div>
+          </div>
+        </div>
+        <div id="c-error" class="error-msg"></div>
+        <div id="c-success" class="success-msg"></div>
+
+        <div class="invite-field show" style="margin-bottom:16px;">
+          <div class="invite-label">🔑 Invite Code Required</div>
+          <input class="invite-input" type="password" id="c-invite-code" placeholder="Enter your invite code" autocomplete="off" />
+          <div class="invite-hint">Contact the administrator to get your invite code</div>
+        </div>
+        <button class="btn btn-college" onclick="register('COLLEGE')">
+          <div class="btn-ripple"></div>Create College Account →
+        </button>
+      </div>
+
+      <p class="login-link">Already have an account? <a href="index.html">Sign in →</a></p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 80; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const sz = Math.random() * 2 + 0.5;
+  s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${Math.random()*4+2}s;animation-delay:${Math.random()*-6}s;opacity:${Math.random()*0.6};`;
+  starsEl.appendChild(s);
+}
+
+const API = 'https://recruitai-pu35.onrender.com';
+
+function selectRole(role) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-role="${role}"]`).classList.add('active');
+  document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+  document.getElementById(`form-${role}`).classList.add('active');
+}
+
+function showError(prefix, msg) {
+  const el = document.getElementById(`${prefix}-error`);
+  el.textContent = '✗ ' + msg; el.style.display = 'block';
+  document.getElementById(`${prefix}-success`).style.display = 'none';
+}
+
+function showSuccess(prefix, msg) {
+  const el = document.getElementById(`${prefix}-success`);
+  el.textContent = '✓ ' + msg; el.style.display = 'block';
+  document.getElementById(`${prefix}-error`).style.display = 'none';
+}
+
+function val(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+async function register(role) {
+  const prefix = role === 'STUDENT' ? 's' : role === 'RECRUITER' ? 'r' : 'c';
+  document.getElementById(`${prefix}-error`).style.display = 'none';
+  document.getElementById(`${prefix}-success`).style.display = 'none';
+
+  let payload = {};
+
+  if (role === 'STUDENT') {
+    const pwd = val('s-password'), cpwd = val('s-cpassword');
+    if (!val('s-fname') || !val('s-email') || !pwd) return showError('s', 'Please fill all required fields.');
+    if (pwd !== cpwd) return showError('s', 'Passwords do not match.');
+    payload = { name: `${val('s-fname')} ${val('s-lname')}`, email: val('s-email'), password: pwd, role: 'STUDENT', college: val('s-college'), branch: val('s-branch'), cgpa: parseFloat(val('s-cgpa')) || 0, graduationYear: parseInt(val('s-year')) || 0, phone: val('s-phone') };
+  } else if (role === 'RECRUITER') {
+    const pwd = val('r-password'), cpwd = val('r-cpassword');
+    if (!val('r-name') || !val('r-email') || !pwd) return showError('r', 'Please fill all required fields.');
+    if (pwd !== cpwd) return showError('r', 'Passwords do not match.');
+    const rInvite = val('r-invite-code');
+    if (!rInvite) return showError('r', 'Invite code is required. Contact the administrator.');
+    payload = { name: val('r-name'), email: val('r-email'), password: pwd, role: 'RECRUITER', designation: val('r-designation'), companyName: val('r-company'), industry: val('r-industry'), companySize: val('r-size'), website: val('r-website'), inviteCode: rInvite };
+  } else {
+    const pwd = val('c-password'), cpwd = val('c-cpassword');
+    if (!val('c-name') || !val('c-email') || !pwd) return showError('c', 'Please fill all required fields.');
+    if (pwd !== cpwd) return showError('c', 'Passwords do not match.');
+    const cInvite = val('c-invite-code');
+    if (!cInvite) return showError('c', 'Invite code is required. Contact the administrator.');
+    payload = { name: val('c-name'), email: val('c-email'), password: pwd, role: 'COLLEGE', phone: val('c-phone'), collegeName: val('c-college'), city: val('c-city'), state: val('c-state'), website: val('c-website'), inviteCode: cInvite };
+  }
+
+  const formId = prefix === 's' ? 'student' : prefix === 'r' ? 'recruiter' : 'college';
+  const btn = document.querySelector(`#form-${formId} .btn`);
+  btn.innerHTML = '<span class="spinner"></span>Creating account...';
+  btn.classList.add('loading');
+
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showSuccess(prefix, 'Account created! Redirecting to login...');
+      setTimeout(() => window.location.href = 'index.html', 2000);
+    } else {
+      showError(prefix, data.message || 'Registration failed. Please try again.');
+    }
+  } catch {
+    showError(prefix, 'Cannot connect to server. Make sure the backend is running.');
+  } finally {
+    const labels = { s: 'Create Student Account →', r: 'Create Recruiter Account →', c: 'Create College Account →' };
+    btn.innerHTML = `<div class="btn-ripple"></div>${labels[prefix]}`;
+    btn.classList.remove('loading');
+  }
+}
+</script>
+</body>
+</html>

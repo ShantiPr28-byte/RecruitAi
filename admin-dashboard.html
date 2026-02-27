@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — RecruiteAi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #090810;
+    --surface: #100f18;
+    --surface2: #14131e;
+    --border: #1f1d2e;
+    --border-light: #2e2b42;
+    --accent: #a78bfa;
+    --accent2: #f59e0b;
+    --accent3: #00d4aa;
+    --text: #ece8ff;
+    --muted: #6b6890;
+    --sidebar-w: 240px;
+    --danger: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  }
+  .sidebar-logo { padding: 22px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .logo-text { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+  .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 8px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: all 0.15s; color: var(--muted); font-size: 14px; font-weight: 500; text-decoration: none; position: relative; }
+  .nav-item:hover { background: rgba(167,139,250,0.06); color: var(--text); }
+  .nav-item.active { background: rgba(167,139,250,0.1); color: var(--accent); }
+  .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); border-radius: 0 2px 2px 0; }
+  .nav-item .icon { font-size: 17px; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--accent2); color: #090810; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; }
+  .sidebar-user { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #c4b5fd); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: #090810; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--accent); background: rgba(167,139,250,0.12); padding: 1px 7px; border-radius: 10px; display: inline-block; margin-top: 2px; }
+  .logout-btn { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; transition: color 0.15s; }
+  .logout-btn:hover { color: var(--text); }
+  .credit { padding: 12px 20px; text-align: center; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); line-height: 1.6; }
+  .credit .heart { color: #f43f5e; display: inline-block; animation: heartbeat 1.4s ease-in-out infinite; }
+  @keyframes heartbeat { 0%,100%{transform:scale(1);} 14%{transform:scale(1.3);} 28%{transform:scale(1);} 42%{transform:scale(1.2);} 70%{transform:scale(1);} }
+  .credit .names { font-weight: 700; color: rgba(236,232,255,0.65); }
+
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar { padding: 18px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface); position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+  .topbar-actions { display: flex; gap: 10px; }
+  .btn-primary { background: var(--accent); color: #090810; border: none; border-radius: 10px; padding: 9px 18px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover { background: #c4b5fd; transform: translateY(-1px); }
+
+  .content { padding: 28px; flex: 1; }
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+  .v-purple { color: var(--accent); } .v-amber { color: var(--accent2); } .v-teal { color: var(--accent3); } .v-red { color: var(--danger); }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+
+  .table-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(167,139,250,0.03); }
+
+  .tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+  .tag-purple { background: rgba(167,139,250,0.12); color: var(--accent); }
+  .tag-amber { background: rgba(245,158,11,0.12); color: var(--accent2); }
+  .tag-teal { background: rgba(0,212,170,0.12); color: var(--accent3); }
+  .tag-gray { background: rgba(107,104,144,0.15); color: var(--muted); }
+  .tag-red { background: rgba(255,107,107,0.12); color: var(--danger); }
+
+  .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .badge-placed { background: rgba(0,212,170,0.12); color: var(--accent3); }
+  .badge-not-placed { background: rgba(107,104,144,0.15); color: var(--muted); }
+  .badge-pending { background: rgba(245,158,11,0.12); color: var(--accent2); }
+  .badge-approved { background: rgba(0,212,170,0.12); color: var(--accent3); }
+  .badge-rejected-r { background: rgba(255,107,107,0.12); color: var(--danger); }
+
+  .btn-sm { padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .btn-approve { background: rgba(0,212,170,0.12); color: var(--accent3); }
+  .btn-approve:hover { background: rgba(0,212,170,0.22); }
+  .btn-reject { background: rgba(255,107,107,0.12); color: var(--danger); }
+  .btn-reject:hover { background: rgba(255,107,107,0.22); }
+  .btn-delete { background: rgba(255,107,107,0.1); color: var(--danger); }
+  .btn-delete:hover { background: rgba(255,107,107,0.2); }
+  .btn-view { background: rgba(167,139,250,0.12); color: var(--accent); }
+  .btn-view:hover { background: rgba(167,139,250,0.22); }
+
+  /* Search input */
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-input { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; width: 240px; }
+  .search-input:focus { border-color: var(--accent); }
+
+  /* Placement report */
+  .report-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .report-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; }
+  .report-val { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; }
+  .report-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* Charts using pure CSS */
+  .bar-chart { margin-bottom: 24px; }
+  .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .bar-label { font-size: 12px; color: var(--muted); width: 80px; text-align: right; }
+  .bar-track { flex: 1; background: var(--border); border-radius: 4px; height: 10px; }
+  .bar-fill { height: 10px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), #c4b5fd); transition: width 1s ease; }
+  .bar-val { font-size: 12px; font-weight: 600; width: 30px; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
+  .modal { background: var(--surface); border: 1px solid var(--border-light); border-radius: 18px; padding: 32px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .field label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input, .field select, .field textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .btn-cancel { background: var(--bg); border: 1px solid var(--border); color: var(--muted); border-radius: 9px; padding: 9px 18px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .btn-cancel:hover { color: var(--text); }
+
+  .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--border-light) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; height: 60px; margin-bottom: 12px; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .empty-state { text-align: center; padding: 40px; color: var(--muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-title { font-family: 'Syne', sans-serif; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px 18px; font-size: 13px; z-index: 999; transform: translateY(80px); transition: transform 0.3s; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  .toast.show { transform: translateY(0); }
+  .toast.error { border-color: rgba(255,77,109,0.4); color: #ff7090; }
+
+  @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .report-grid { grid-template-columns: 1fr 1fr; } }
+
+  /* ── AI Placement Insights ────────────────────── */
+  .ai-insights-btn { padding:8px 18px; background:linear-gradient(135deg,#6c63ff,#00d4aa); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .ai-insight-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:12px; }
+  .ai-insight-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .ai-insight-body { font-size:13px; color:var(--muted); line-height:1.7; }
+  .ai-insight-body strong { color: var(--text); }
+  .ai-insight-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(max-width:600px){ .ai-insight-grid { grid-template-columns:1fr; } }
+
+
+  /* ── Custom Confirm/Reject Modal ─────────────────── */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(9,8,16,0.85);
+    backdrop-filter: blur(4px); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+    animation: backdropIn 0.15s ease;
+  }
+  .custom-modal {
+    background: var(--surface); border: 1px solid var(--border-light);
+    border-radius: 18px; padding: 28px 28px 24px;
+    width: 420px; max-width: 94vw;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    animation: slideUp 0.2s ease;
+  }
+  .custom-modal .modal-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 16px;
+  }
+  .custom-modal .modal-icon.danger { background: rgba(255,107,107,0.12); }
+  .custom-modal .modal-icon.warn   { background: rgba(245,158,11,0.12); }
+  .custom-modal h3 {
+    font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700;
+    margin-bottom: 6px; color: var(--text);
+  }
+  .custom-modal p {
+    font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 18px;
+  }
+  .custom-modal textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border-light);
+    border-radius: 10px; padding: 12px 14px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    resize: none; height: 90px; outline: none; margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+  .custom-modal textarea:focus { border-color: var(--accent); }
+  .custom-modal textarea::placeholder { color: var(--muted); }
+  .custom-modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .custom-modal .btn-cancel {
+    padding: 9px 20px; background: var(--surface2); border: 1px solid var(--border-light);
+    color: var(--muted); border-radius: 10px; cursor: pointer; font-size: 13px;
+    font-weight: 500; transition: all 0.15s;
+  }
+  .custom-modal .btn-cancel:hover { color: var(--text); }
+  .custom-modal .btn-confirm-reject {
+    padding: 9px 22px; background: rgba(255,107,107,0.15);
+    border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b;
+    border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .custom-modal .btn-confirm-reject:hover { background: rgba(255,107,107,0.25); }
+  .custom-modal .btn-confirm-delete {
+    padding: 9px 22px; background: #ff6b6b; border: none;
+    color: #fff; border-radius: 10px; cursor: pointer; font-size: 13px;
+    font-weight: 600; transition: all 0.15s;
+  }
+  .custom-modal .btn-confirm-delete:hover { background: #ff5252; }
+  @keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎯</div>
+    <span class="logo-text">RecruiteAi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</a>
+    <div class="nav-label">People</div>
+    <a class="nav-item" onclick="showPage('students')"><span class="icon">🎓</span> Students</a>
+    <a class="nav-item" onclick="showPage('recruiters')">
+      <span class="icon">🏢</span> Recruiters
+      <span class="nav-badge" id="pending-badge">0</span>
+    </a>
+    <div class="nav-label">Content</div>
+    <a class="nav-item" onclick="showPage('courses')"><span class="icon">📚</span> Courses</a>
+    <a class="nav-item" onclick="showPage('mock')"><span class="icon">🎤</span> Mock Interviews</a>
+    <div class="nav-label">Reports</div>
+    <a class="nav-item" onclick="showPage('placement')"><span class="icon">📊</span> Placement Report</a>
+    <a class="nav-item" onclick="showPage('jobs')"><span class="icon">💼</span> All Job Postings</a>
+    <div class="nav-label">Account</div>
+    <a class="nav-item" onclick="showPage('ai-insights')"><span class="icon">🤖</span> AI Insights</a>
+    <a class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-info">
+      <div class="user-name" id="user-name">Loading...</div>
+      <span class="user-role">Admin</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">⬆</button>
+  </div>
+  <div class="credit">
+    Made with <span class="heart">❤️</span> by<br>
+    <span class="names">Shanti & Shashank</span>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions" id="topbar-actions"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-value v-purple" id="stat-students">—</div><div class="stat-sub">Registered</div></div>
+        <div class="stat-card"><div class="stat-label">Placed Students</div><div class="stat-value v-teal" id="stat-placed">—</div><div class="stat-sub">Got offers</div></div>
+        <div class="stat-card"><div class="stat-label">Active Recruiters</div><div class="stat-value v-amber" id="stat-recruiters">—</div><div class="stat-sub">Approved</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Approvals</div><div class="stat-value v-red" id="stat-pending">—</div><div class="stat-sub">Recruiters awaiting</div></div>
+      </div>
+
+      <div class="section-header"><span class="section-title">Placement by Branch</span></div>
+      <div class="table-wrapper" style="padding:20px 24px;" id="dash-branches">
+        <div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:0;">
+        <div>
+          <div class="section-header"><span class="section-title">Pending Recruiter Approvals</span><a style="font-size:12px;color:var(--accent);cursor:pointer;" onclick="showPage('recruiters')">View all</a></div>
+          <div id="dash-pending"><div class="skeleton"></div><div class="skeleton"></div></div>
+        </div>
+        <div>
+          <div class="section-header"><span class="section-title">Recent Applications</span></div>
+          <div class="table-wrapper">
+            <table><thead><tr><th>Student</th><th>Job</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="dash-apps"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS PAGE -->
+    <div class="page" id="page-students">
+      <div class="search-row">
+        <input class="search-input" type="text" placeholder="Search students..." id="student-search" oninput="filterStudents()" />
+        <select class="search-input" id="branch-filter" onchange="filterStudents()" style="width:180px;">
+          <option value="">All Branches</option>
+          <option>Computer Science</option>
+          <option>Information Technology</option>
+          <option>Electronics</option>
+          <option>Mechanical</option>
+          <option>Civil</option>
+        </select>
+        <select class="search-input" id="placement-filter" onchange="filterStudents()" style="width:160px;">
+          <option value="">All Status</option>
+          <option value="PLACED">Placed</option>
+          <option value="NOT_PLACED">Not Placed</option>
+        </select>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Name</th><th>Branch</th><th>CGPA</th><th>Year</th><th>Placement</th><th>Actions</th></tr></thead>
+          <tbody id="students-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RECRUITERS PAGE -->
+    <div class="page" id="page-recruiters">
+      <div class="section-header"><span class="section-title">Pending Approvals</span></div>
+      <div class="table-wrapper" style="margin-bottom:24px;">
+        <table><thead><tr><th>Company</th><th>Recruiter</th><th>Industry</th><th>Submitted</th><th>Actions</th></tr></thead>
+        <tbody id="pending-body"></tbody></table>
+      </div>
+      <div class="section-header"><span class="section-title">Approved Recruiters</span></div>
+      <div class="table-wrapper">
+        <table><thead><tr><th>Company</th><th>Recruiter</th><th>Industry</th><th>Jobs Posted</th><th>Actions</th></tr></thead>
+        <tbody id="approved-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- COURSES PAGE -->
+    <div class="page" id="page-courses">
+      <div class="section-header">
+        <span class="section-title">Courses & Study Material</span>
+        <button class="btn-primary" onclick="openCourseModal()">+ Add Course</button>
+      </div>
+      <div class="table-wrapper">
+        <table><thead><tr><th>Title</th><th>Category</th><th>Description</th><th>Actions</th></tr></thead>
+        <tbody id="courses-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- MOCK PAGE -->
+    <div class="page" id="page-mock">
+      <div class="section-header">
+        <span class="section-title">Mock Interview Resources</span>
+        <button class="btn-primary" onclick="openMockModal()">+ Add Resource</button>
+      </div>
+      <div class="table-wrapper">
+        <table><thead><tr><th>Title</th><th>Type</th><th>Description</th><th>Actions</th></tr></thead>
+        <tbody id="mock-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PLACEMENT REPORT -->
+    <div class="page" id="page-placement">
+      <div class="report-grid" id="report-stats">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+      <div class="section-header"><span class="section-title">Branch-wise Placement</span>
+        <button class="btn-primary" onclick="exportReport()">Export PDF</button>
+      </div>
+      <div class="table-wrapper">
+        <table><thead><tr><th>Branch</th><th>Total Students</th><th>Placed</th><th>Not Placed</th><th>% Placed</th></tr></thead>
+        <tbody id="report-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ALL JOBS -->
+    <div class="page" id="page-jobs">
+      <div class="table-wrapper">
+        <table><thead><tr><th>Job Title</th><th>Company</th><th>Location</th><th>Package</th><th>Applicants</th><th>Status</th></tr></thead>
+        <tbody id="jobs-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div style="max-width:560px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;">
+          <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;">College Information</div>
+          <div class="field"><label>College Name</label><input id="s-college" type="text" /></div>
+          <div class="field-row">
+            <div class="field"><label>City</label><input id="s-city" type="text" /></div>
+            <div class="field"><label>State</label><input id="s-state" type="text" /></div>
+          </div>
+          <div class="field"><label>Website</label><input id="s-website" type="url" /></div>
+          <button class="btn-primary" onclick="saveSettings()" style="margin-top:8px;">Save</button>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;">
+          <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;">Admin Account</div>
+          <div class="field"><label>Full Name</label><input id="s-name" type="text" /></div>
+          <div class="field"><label>Email</label><input id="s-email" type="email" disabled style="opacity:0.5;" /></div>
+          <div class="field"><label>New Password</label><input id="s-password" type="password" placeholder="Leave blank to keep current" /></div>
+          <button class="btn-primary" onclick="saveSettings()" style="margin-top:8px;">Update</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+    <!-- AI Placement Insights Page -->
+    <div class="page" id="page-ai-insights">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;">🤖 AI Placement Insights</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:4px;">Smart analysis of your placement data</p>
+        </div>
+        <button class="ai-insights-btn" onclick="runAIInsights()">
+          <span id="ai-insights-btn-text">✨ Generate Insights</span>
+        </button>
+      </div>
+      <div id="ai-insights-content">
+        <div class="empty-state">
+          <div class="empty-icon">🤖</div>
+          <div class="empty-title">Ready to analyze</div>
+          <p>Click "Generate Insights" to get an AI analysis of your placement data</p>
+        </div>
+      </div>
+    </div>
+
+</main>
+
+<!-- Course Modal -->
+<!-- Student View Modal -->
+<div class="modal-overlay" id="student-view-modal">
+  <div class="modal" style="max-width:520px;">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+      <div id="sv-avatar" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9b92ff);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;flex-shrink:0;">?</div>
+      <div>
+        <div id="sv-name" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">—</div>
+        <div id="sv-email" style="font-size:13px;color:var(--muted);margin-top:2px;">—</div>
+        <span id="sv-status" class="badge badge-not-placed" style="margin-top:6px;display:inline-block;">—</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Branch</div>
+        <div id="sv-branch" style="font-weight:600;font-size:14px;">—</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">CGPA</div>
+        <div id="sv-cgpa" style="font-weight:600;font-size:14px;">—</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Graduation Year</div>
+        <div id="sv-year" style="font-weight:600;font-size:14px;">—</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Phone</div>
+        <div id="sv-phone" style="font-weight:600;font-size:14px;">—</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;grid-column:1/-1;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">College</div>
+        <div id="sv-college" style="font-weight:600;font-size:14px;">—</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;grid-column:1/-1;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Skills</div>
+        <div id="sv-skills" style="font-size:13px;color:var(--accent);">—</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('student-view-modal')">Close</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="course-modal">
+  <div class="modal">
+    <div class="modal-title">Add Course</div>
+    <div class="field"><label>Title</label><input id="c-title" type="text" placeholder="DSA Masterclass" /></div>
+    <div class="field"><label>Description</label><textarea id="c-desc" placeholder="Course overview..."></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Category</label>
+        <select id="c-cat"><option>Technical</option><option>Aptitude</option><option>Soft Skills</option><option>Domain Specific</option></select>
+      </div>
+      <div class="field"><label>Resource Link</label><input id="c-link" type="url" placeholder="https://..." /></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('course-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveCourse()">Add Course →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mock Modal -->
+<div class="modal-overlay" id="mock-modal">
+  <div class="modal">
+    <div class="modal-title">Add Mock Interview Resource</div>
+    <div class="field"><label>Title</label><input id="m-title" type="text" placeholder="HR Interview Guide" /></div>
+    <div class="field"><label>Description</label><textarea id="m-desc" placeholder="Resource description..."></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Type</label>
+        <select id="m-type"><option>Technical</option><option>HR</option><option>Group Discussion</option><option>Case Study</option></select>
+      </div>
+      <div class="field"><label>Resource Link</label><input id="m-link" type="url" /></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('mock-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveMock()">Add Resource →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+const API = 'https://recruitai-pu35.onrender.com';
+let token = localStorage.getItem('token');
+let allStudents = [];
+
+function headers() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
+async function api(path, opts = {}) {
+  try {
+    const res = await fetch(`${API}${path}`, { headers: headers(), ...opts });
+    if (res.status === 401) { logout(); return null; }
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.error(`API error ${res.status} on ${path}:`, errText);
+      return null;
+    }
+    const text = await res.text();
+    if (!text) return true;
+    try {
+      const json = JSON.parse(text);
+      // Unwrap ApiResponse wrapper: { success, message, data }
+      if (json && typeof json === 'object' && 'success' in json) {
+        return json.success ? (json.data !== undefined ? json.data : true) : null;
+      }
+      return json;
+    } catch { return true; }
+  } catch (e) {
+    console.error('Network error on', path, e);
+    return null;
+  }
+}
+function logout() { localStorage.removeItem('token'); window.location.href = 'index.html'; }
+function showToast(msg, type = 'success') { const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = (type === 'error' ? '✗ ' : '✓ ') + msg; t.className = `toast show${type === 'error' ? ' error' : ''}`; setTimeout(() => t.classList.remove('show'), 3000); }
+function initials(name) { return (name || '?').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase(); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  document.querySelector(`[onclick="showPage('${name}')"]`)?.classList.add('active');
+  // AI Insights page init
+const titles = { 'ai-insights': 'AI Insights', dashboard:'Dashboard', students:'Manage Students', recruiters:'Manage Recruiters', courses:'Courses', mock:'Mock Interviews', placement:'Placement Report', jobs:'All Job Postings', settings:'Settings' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+  if (name === 'students') loadStudents();
+  else if (name === 'recruiters') loadRecruiters();
+  else if (name === 'courses') loadCourses();
+  else if (name === 'mock') loadMock();
+  else if (name === 'placement') loadPlacementReport();
+  else if (name === 'jobs') loadJobs();
+}
+
+async function init() {
+  if (!token) { window.location.href = 'index.html'; return; }
+  // AdminController has no /profile endpoint — use stored name from login
+  const name = localStorage.getItem('name') || 'Admin';
+  const email = localStorage.getItem('email') || '';
+  document.getElementById('user-name').textContent = name;
+  document.getElementById('user-avatar').textContent = initials(name);
+  if (document.getElementById('s-name')) document.getElementById('s-name').value = name;
+  if (document.getElementById('s-email')) document.getElementById('s-email').value = email;
+  loadDashboard();
+}
+
+async function loadDashboard() {
+  const [students, recruiters, apps] = await Promise.all([
+    api('/api/admin/students'),
+    api('/api/admin/recruiters'),
+    api('/api/admin/stats')
+  ]);
+
+  const studentList = students || [];
+  const recruiterList = recruiters || [];
+  const stats = apps || {}; // stats from /api/admin/stats
+
+  const placed = studentList.filter(s => s.placementStatus === 'PLACED').length;
+  const pending = recruiterList.filter(r => !r.isApproved && r.status !== 'REJECTED').length;
+  const approved = recruiterList.filter(r => r.isApproved).length;
+
+  document.getElementById('stat-students').textContent = studentList.length;
+  document.getElementById('stat-placed').textContent = placed;
+  document.getElementById('stat-recruiters').textContent = approved;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('pending-badge').textContent = pending;
+
+  // Branch-wise chart
+  const branches = {};
+  studentList.forEach(s => {
+    const b = s.branch || 'Other';
+    if (!branches[b]) branches[b] = { total: 0, placed: 0 };
+    branches[b].total++;
+    if (s.placementStatus === 'PLACED') branches[b].placed++;
+  });
+
+  const branchEl = document.getElementById('dash-branches');
+  if (!Object.keys(branches).length) { branchEl.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">No data yet</p>'; }
+  else {
+    branchEl.innerHTML = Object.entries(branches).map(([b, d]) => {
+      const pct = d.total ? Math.round(d.placed / d.total * 100) : 0;
+      return `<div class="bar-row">
+        <span class="bar-label">${b.split(' ')[0]}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <span class="bar-val">${pct}%</span>
+        <span style="font-size:11px;color:var(--muted)">${d.placed}/${d.total}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Pending recruiters
+  const pendingEl = document.getElementById('dash-pending');
+  const pendingList = recruiterList.filter(r => !r.isApproved && r.status !== 'REJECTED').slice(0,3);
+  if (!pendingList.length) { pendingEl.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No pending approvals</div></div>`; }
+  else {
+    pendingEl.innerHTML = pendingList.map(r => `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#090810;">${initials(r.companyName || r.name || 'R')}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;">${r.companyName || r.name || '—'}</div>
+          <div style="font-size:12px;color:var(--muted)">${r.industry || ''}</div>
+        </div>
+        <button class="btn-sm btn-approve" onclick="approveRecruiter(${r.id})">Approve</button>
+        <button class="btn-sm btn-reject" onclick="rejectRecruiter(${r.id})">Reject</button>
+      </div>`).join('');
+  }
+
+  // Recent apps — load separately from students' applications
+  const tbody = document.getElementById('dash-apps');
+  tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--muted);">View individual student profiles for application details</td></tr>`;
+}
+
+async function loadStudents() {
+  const data = await api('/api/admin/students');
+  allStudents = data || [];
+  renderStudentsTable(allStudents);
+}
+
+function renderStudentsTable(list) {
+  const tbody = document.getElementById('students-body');
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">No students found</td></tr>`; return; }
+  tbody.innerHTML = list.map(s => `<tr>
+    <td><strong>${s.name || s.user?.name || '—'}</strong><br><small style="color:var(--muted)">${s.email || s.user?.email || ''}</small></td>
+    <td>${s.branch || '—'}</td>
+    <td>${s.cgpa ?? '—'}</td>
+    <td>${s.graduationYear || '—'}</td>
+    <td><span class="badge ${s.placementStatus === 'PLACED' ? 'badge-placed' : 'badge-not-placed'}">${s.placementStatus || 'NOT_PLACED'}</span></td>
+    <td><button class="btn-sm btn-view" onclick="viewStudent(${s.id})">View</button></td>
+  </tr>`).join('');
+}
+
+function filterStudents() {
+  const q = document.getElementById('student-search').value.toLowerCase();
+  const branch = document.getElementById('branch-filter').value;
+  const status = document.getElementById('placement-filter').value;
+  let filtered = allStudents;
+  if (q) filtered = filtered.filter(s => (s.name||s.user?.name||'').toLowerCase().includes(q) || (s.email||s.user?.email||'').toLowerCase().includes(q));
+  if (branch) filtered = filtered.filter(s => s.branch === branch);
+  if (status) filtered = filtered.filter(s => (s.placementStatus || 'NOT_PLACED') === status);
+  renderStudentsTable(filtered);
+}
+
+function viewStudent(id) {
+  const s = allStudents.find(s => s.id === id);
+  if (!s) return;
+  const name = s.name || s.user?.name || '—';
+  const email = s.email || s.user?.email || '—';
+  document.getElementById('sv-avatar').textContent = name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  document.getElementById('sv-name').textContent = name;
+  document.getElementById('sv-email').textContent = email;
+  document.getElementById('sv-branch').textContent = s.branch || '—';
+  document.getElementById('sv-cgpa').textContent = s.cgpa ?? '—';
+  document.getElementById('sv-year').textContent = s.graduationYear || '—';
+  document.getElementById('sv-phone').textContent = s.phone || '—';
+  document.getElementById('sv-college').textContent = s.college || '—';
+  document.getElementById('sv-skills').textContent = s.skills || 'Not specified';
+  const statusEl = document.getElementById('sv-status');
+  statusEl.textContent = s.placementStatus || 'NOT_PLACED';
+  statusEl.className = `badge ${s.placementStatus === 'PLACED' ? 'badge-placed' : 'badge-not-placed'}`;
+  document.getElementById('student-view-modal').classList.add('show');
+}
+
+async function loadRecruiters() {
+  const data = await api('/api/admin/recruiters');
+  const list = data || [];
+  const pending = list.filter(r => !r.isApproved && r.status !== 'REJECTED');
+  const approved = list.filter(r => r.isApproved);
+
+  const pendingBody = document.getElementById('pending-body');
+  pendingBody.innerHTML = !pending.length
+    ? `<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted);">No pending approvals</td></tr>`
+    : pending.map(r => `<tr>
+        <td><strong>${r.companyName || '—'}</strong></td>
+        <td>${r.name || r.user?.name || '—'}</td>
+        <td>${r.industry || '—'}</td>
+        <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</td>
+        <td style="display:flex;gap:6px;">
+          <button class="btn-sm btn-approve" onclick="approveRecruiter(${r.id})">✓ Approve</button>
+          <button class="btn-sm btn-reject" onclick="rejectRecruiter(${r.id})">✗ Reject</button>
+        </td>
+      </tr>`).join('');
+
+  const approvedBody = document.getElementById('approved-body');
+  approvedBody.innerHTML = !approved.length
+    ? `<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted);">No approved recruiters</td></tr>`
+    : approved.map(r => `<tr>
+        <td><strong>${r.companyName || '—'}</strong></td>
+        <td>${r.name || r.user?.name || '—'}</td>
+        <td>${r.industry || '—'}</td>
+        <td>${r.jobCount || 0}</td>
+        <td><button class="btn-sm btn-reject" onclick="revokeRecruiter(${r.id})">Revoke</button></td>
+      </tr>`).join('');
+}
+
+async function approveRecruiter(id) {
+  const res = await api(`/api/admin/recruiters/${id}/approve`, { method: 'PUT' });
+  if (res !== null) { showToast('Recruiter approved!'); loadRecruiters(); loadDashboard(); }
+  else showToast('Approval failed — check console', 'error');
+}
+
+async function rejectRecruiter(id) {
+  const res = await api(`/api/admin/recruiters/${id}/reject`, { method: 'PUT' });
+  if (res !== null) { showToast('Recruiter rejected'); loadRecruiters(); loadDashboard(); }
+  else showToast('Rejection failed — check console', 'error');
+}
+
+function revokeRecruiter(id) {
+  showCustomModal(
+    '<div class="modal-icon warn">🔒</div>' +
+    '<h3>Revoke Recruiter Access</h3>' +
+    '<p>This will revoke the recruiter\'s ability to post jobs. They will be notified. You can re-approve them later.</p>' +
+    '<div class="modal-actions">' +
+      '<button class="btn-cancel" onclick="closeCustomModal()">Cancel</button>' +
+      '<button class="btn-confirm-reject" onclick="confirmRevokeRecruiter(' + id + ')">🔒 Revoke Access</button>' +
+    '</div>'
+  );
+}
+
+async function confirmRevokeRecruiter(id) {
+  closeCustomModal();
+  const res = await api('/api/admin/recruiters/' + id + '/revoke', { method: 'PUT' });
+  if (res !== null) { showToast('Access revoked'); loadRecruiters(); }
+  else showToast('Revoke failed — check console', 'error');
+}
+
+async function loadCourses() {
+  const data = await api('/api/admin/courses');
+  const tbody = document.getElementById('courses-body');
+  if (!data?.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted);">No courses added yet</td></tr>`; return; }
+  tbody.innerHTML = data.map(c => `<tr>
+    <td><strong>${c.title}</strong></td>
+    <td><span class="tag tag-purple">${c.category || '—'}</span></td>
+    <td style="color:var(--muted)">${c.description || '—'}</td>
+    <td style="display:flex;gap:6px;">
+      ${c.link ? `<a href="${c.link}" target="_blank" class="btn-sm btn-view" style="text-decoration:none">View</a>` : ''}
+      <button class="btn-sm btn-delete" onclick="deleteCourse(${c.id})">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openCourseModal() { document.getElementById('course-modal').classList.add('show'); }
+
+async function saveCourse() {
+  const title = document.getElementById('c-title').value.trim();
+  const desc = document.getElementById('c-desc').value.trim();
+  const cat = document.getElementById('c-cat').value;
+  const link = document.getElementById('c-link').value.trim();
+  if (!title) { showToast('Please enter a course title', 'error'); return; }
+  const payload = { title, description: desc, category: cat, link };
+  const btn = document.querySelector('#course-modal .btn-primary');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API}/api/admin/courses`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const bodyText = await res.text();
+    console.log('saveCourse status:', res.status, 'body:', bodyText);
+    if (res.ok) {
+      closeModal('course-modal');
+      document.getElementById('c-title').value = '';
+      document.getElementById('c-desc').value = '';
+      document.getElementById('c-link').value = '';
+      showToast('Course added successfully!');
+      loadCourses();
+    } else {
+      let errMsg = `Error ${res.status}`;
+      try { const j = JSON.parse(bodyText); errMsg = j.message || j.error || errMsg; } catch {}
+      showToast(errMsg, 'error');
+    }
+  } catch (e) {
+    console.error('saveCourse network error:', e);
+    showToast('Network error — is backend running?', 'error');
+  }
+
+  btn.textContent = 'Add Course →'; btn.disabled = false;
+}
+
+async function deleteCourse(id) {
+  await api(`/api/admin/courses/${id}`, { method: 'DELETE' });
+  showToast('Course deleted'); loadCourses();
+}
+
+async function loadMock() {
+  const data = await api('/api/admin/mock-interviews');
+  const tbody = document.getElementById('mock-body');
+  if (!data?.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted);">No mock interview resources yet</td></tr>`; return; }
+  tbody.innerHTML = data.map(m => `<tr>
+    <td><strong>${m.title}</strong></td>
+    <td><span class="tag tag-amber">${m.type || '—'}</span></td>
+    <td style="color:var(--muted)">${m.description || '—'}</td>
+    <td><button class="btn-sm btn-delete" onclick="deleteMock(${m.id})">Delete</button></td>
+  </tr>`).join('');
+}
+
+function openMockModal() { document.getElementById('mock-modal').classList.add('show'); }
+
+async function saveMock() {
+  const payload = { title: document.getElementById('m-title').value, description: document.getElementById('m-desc').value, type: document.getElementById('m-type').value, link: document.getElementById('m-link').value };
+  if (!payload.title) return;
+  const res = await api('/api/admin/mock-interviews', { method: 'POST', body: JSON.stringify(payload) });
+  if (res) { closeModal('mock-modal'); showToast('Resource added!'); loadMock(); }
+}
+
+async function deleteMock(id) {
+  await api(`/api/admin/mock-interviews/${id}`, { method: 'DELETE' });
+  showToast('Deleted'); loadMock();
+}
+
+async function loadPlacementReport() {
+  const students = await api('/api/admin/students');
+  const list = students || [];
+  const placed = list.filter(s => s.placementStatus === 'PLACED').length;
+  const pct = list.length ? Math.round(placed / list.length * 100) : 0;
+  const avgCgpa = list.length ? (list.reduce((a,s) => a + (s.cgpa || 0), 0) / list.length).toFixed(2) : '—';
+
+  document.getElementById('report-stats').innerHTML = `
+    <div class="report-card"><div class="report-val v-purple">${list.length}</div><div class="report-label">Total Students</div></div>
+    <div class="report-card"><div class="report-val v-teal">${placed} (${pct}%)</div><div class="report-label">Placed</div></div>
+    <div class="report-card"><div class="report-val v-amber">${avgCgpa}</div><div class="report-label">Avg CGPA</div></div>
+  `;
+
+  const branches = {};
+  list.forEach(s => {
+    const b = s.branch || 'Other';
+    if (!branches[b]) branches[b] = { total: 0, placed: 0 };
+    branches[b].total++;
+    if (s.placementStatus === 'PLACED') branches[b].placed++;
+  });
+
+  const tbody = document.getElementById('report-body');
+  tbody.innerHTML = Object.entries(branches).map(([b, d]) => {
+    const p = d.total ? Math.round(d.placed / d.total * 100) : 0;
+    return `<tr>
+      <td><strong>${b}</strong></td>
+      <td>${d.total}</td>
+      <td style="color:var(--accent3)">${d.placed}</td>
+      <td style="color:var(--muted)">${d.total - d.placed}</td>
+      <td><span class="tag ${p >= 70 ? 'tag-teal' : p >= 40 ? 'tag-amber' : 'tag-red'}">${p}%</span></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted);">No data available</td></tr>`;
+}
+
+async function loadJobs() {
+  const jobs = await api('/api/admin/jobs');
+  const tbody = document.getElementById('jobs-body');
+  if (!jobs?.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted);">No jobs posted</td></tr>`; return; }
+  tbody.innerHTML = jobs.map(j => {
+    const status = j.jobStatus || 'APPROVED';
+    const statusTag = status === 'PENDING_APPROVAL'
+      ? `<span class="tag tag-amber">⏳ Pending</span>`
+      : status === 'REJECTED'
+      ? `<span class="tag tag-red">✗ Rejected</span>`
+      : `<span class="tag tag-teal">✓ Approved</span>`;
+    const actions = status === 'PENDING_APPROVAL'
+      ? `<button class="btn-sm btn-approve" onclick="approveJob(${j.id})">✓ Approve</button>
+         <button class="btn-sm btn-reject" onclick="rejectJob(${j.id})">✗ Reject</button>`
+      : status === 'REJECTED'
+      ? `<button class="btn-sm btn-approve" onclick="approveJob(${j.id})">✓ Approve</button>`
+      : `<button class="btn-sm btn-danger" onclick="adminDeleteJob(${j.id})">Delete</button>`;
+    return `<tr>
+      <td><strong>${j.title}</strong></td>
+      <td>${j.companyName || '—'}</td>
+      <td>${j.location || '—'}</td>
+      <td>${j.package ? j.package + ' LPA' : '—'}</td>
+      <td>${j.applicationCount || 0}</td>
+      <td>${statusTag}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function approveJob(jobId) {
+  const res = await api(`/api/admin/jobs/${jobId}/approve`, { method: 'PUT' });
+  if (res !== null) { showToast('Job approved — now live for students!'); loadJobs(); loadDashboard(); }
+  else showToast('Failed to approve job', 'error');
+}
+
+function showCustomModal(html) {
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.id = 'custom-modal-backdrop';
+  backdrop.innerHTML = '<div class="custom-modal">' + html + '</div>';
+  document.body.appendChild(backdrop);
+}
+function closeCustomModal() {
+  document.getElementById('custom-modal-backdrop')?.remove();
+}
+
+function rejectJob(jobId) {
+  showCustomModal(
+    '<div class="modal-icon warn">⚠️</div>' +
+    '<h3>Reject Job Posting</h3>' +
+    '<p>Please provide a reason for rejection. The recruiter will be notified and can resubmit after making changes.</p>' +
+    '<textarea id="reject-reason-input" placeholder="e.g. Job description is incomplete, salary range not specified..."></textarea>' +
+    '<div class="modal-actions">' +
+      '<button class="btn-cancel" onclick="closeCustomModal()">Cancel</button>' +
+      '<button class="btn-confirm-reject" onclick="confirmRejectJob(' + jobId + ')">✗ Reject Job</button>' +
+    '</div>'
+  );
+  setTimeout(function() { var el = document.getElementById('reject-reason-input'); if(el) el.focus(); }, 100);
+}
+
+async function confirmRejectJob(jobId) {
+  const reason = document.getElementById('reject-reason-input')?.value || '';
+  closeCustomModal();
+  const res = await api('/api/admin/jobs/' + jobId + '/reject?reason=' + encodeURIComponent(reason), { method: 'PUT' });
+  if (res !== null) { showToast('Job rejected — recruiter notified'); loadJobs(); loadDashboard(); }
+  else showToast('Failed to reject job', 'error');
+}
+
+function adminDeleteJob(jobId) {
+  showCustomModal(
+    '<div class="modal-icon danger">🗑️</div>' +
+    '<h3>Delete Job Posting</h3>' +
+    '<p>This will permanently delete the job posting and all associated applications. This action cannot be undone.</p>' +
+    '<div class="modal-actions">' +
+      '<button class="btn-cancel" onclick="closeCustomModal()">Cancel</button>' +
+      '<button class="btn-confirm-delete" onclick="confirmDeleteJob(' + jobId + ')">Delete Permanently</button>' +
+    '</div>'
+  );
+}
+
+async function confirmDeleteJob(jobId) {
+  closeCustomModal();
+  const res = await api('/api/admin/jobs/' + jobId, { method: 'DELETE' });
+  if (res !== null) { showToast('Job deleted successfully'); loadJobs(); }
+  else showToast('Failed to delete job', 'error');
+}
+
+async function saveSettings() {
+  const payload = {
+    name: document.getElementById('s-name').value,
+    collegeName: document.getElementById('s-college').value,
+    city: document.getElementById('s-city').value,
+    website: document.getElementById('s-website').value
+  };
+  const pwd = document.getElementById('s-password').value;
+  if (pwd) payload.password = pwd;
+  await api('/api/admin/profile', { method: 'PUT', body: JSON.stringify(payload) });
+  showToast('Settings saved!');
+}
+
+function exportReport() { showToast('Generating PDF report...'); window.open(`${API}/api/college/placement-report/pdf`, '_blank'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
+init();
+
+// ══════════════════════════════════════════
+//  AI PLACEMENT INSIGHTS — Admin Dashboard
+// ══════════════════════════════════════════
+async function runAIInsights() {
+  const btn = document.getElementById('ai-insights-btn-text');
+  btn.textContent = '⏳ Analyzing...';
+  const el = document.getElementById('ai-insights-content');
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">🤖 Analyzing your placement data...</div>';
+
+  try {
+    // Gather all platform data
+    const [students, recruiters, jobs] = await Promise.all([
+      api('/api/admin/students'),
+      api('/api/admin/recruiters'),
+      api('/api/admin/jobs')
+    ]);
+
+    const totalStudents = students?.length || 0;
+    const placedStudents = students?.filter(s => s.placementStatus === 'PLACED').length || 0;
+    const totalJobs = jobs?.length || 0;
+    const activeJobs = jobs?.filter(j => j.active).length || 0;
+    const approvedRecruiters = recruiters?.filter(r => r.isApproved).length || 0;
+    const pendingRecruiters = recruiters?.filter(r => !r.isApproved && r.status !== 'REJECTED').length || 0;
+    const branchCounts = {};
+    const avgCgpa = students?.reduce((sum, s) => { if(s.branch) branchCounts[s.branch]=(branchCounts[s.branch]||0)+1; return sum+(s.cgpa||0); }, 0) / (totalStudents||1);
+    const topBranches = Object.entries(branchCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([b,c])=>`${b}(${c})`).join(', ');
+
+
+
+    const result = await api('/api/ai/placement-insights', {
+      method: 'POST',
+      body: JSON.stringify({
+        totalStudents, placedStudents, activeJobs, totalJobs,
+        approvedRecruiters, pendingRecruiters,
+        avgCgpa: parseFloat(avgCgpa.toFixed(2)),
+        topBranches
+      })
+    });
+    if (!result) throw new Error('No insights from server');
+
+    const healthColor = result.placementHealth?.score >= 75 ? '#00d4aa' : result.placementHealth?.score >= 50 ? '#f59e0b' : '#ff6b6b';
+    const prioColor = p => p === 'HIGH' ? '#ff6b6b' : p === 'MEDIUM' ? '#f59e0b' : '#00d4aa';
+
+    el.innerHTML = `
+      <!-- Health Score -->
+      <div class="ai-insight-card" style="border-color:${healthColor}40;background:${healthColor}08;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:20px;">
+          <div style="width:72px;height:72px;border-radius:50%;border:3px solid ${healthColor};background:${healthColor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:${healthColor};">${result.placementHealth?.score}%</span>
+          </div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:${healthColor};">${result.placementHealth?.status}</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.6;">${result.placementHealth?.summary}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Insights Grid -->
+      <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--muted);">KEY INSIGHTS</h3>
+      <div class="ai-insight-grid" style="margin-bottom:20px;">
+        ${(result.keyInsights || []).map(ins => `
+          <div class="ai-insight-card">
+            <div class="ai-insight-title">${ins.icon} ${ins.title}</div>
+            <div class="ai-insight-body">${ins.body}</div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Recommendations -->
+      <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--muted);">RECOMMENDATIONS</h3>
+      <div style="margin-bottom:20px;">
+        ${(result.recommendations || []).map(r => `
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+            <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${prioColor(r.priority)}18;color:${prioColor(r.priority)};border:1px solid ${prioColor(r.priority)}30;white-space:nowrap;">${r.priority}</span>
+            <span style="font-size:13px;color:var(--text);line-height:1.5;">${r.action}</span>
+          </div>`).join('')}
+      </div>
+
+      ${result.riskFlags?.length ? `
+      <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:#ff6b6b;">⚠ RISK FLAGS</h3>
+      <div style="background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.2);border-radius:10px;padding:14px;">
+        ${result.riskFlags.map(f => `<div style="font-size:13px;color:var(--muted);padding:4px 0;">• ${f}</div>`).join('')}
+      </div>` : ''}
+    `;
+    btn.textContent = '✨ Refresh Insights';
+  } catch(e) {
+    el.innerHTML = '<div style="color:#ff6b6b;text-align:center;padding:20px;">AI analysis failed. Please try again.</div>';
+    btn.textContent = '✨ Generate Insights';
+    console.error(e);
+  }
+}
+
+</script>
+</body>
+</html>
