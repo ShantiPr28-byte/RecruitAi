@@ -1,14 +1,14 @@
-# 🎯 SmartRecruit — AI-Powered Campus Recruitment Platform
+# 🎯 RecruitAi — AI-Powered Campus Recruitment Platform
 
 <div align="center">
 
-![SmartRecruit Banner](https://img.shields.io/badge/SmartRecruit-AI%20Recruitment%20Platform-00d4aa?style=for-the-badge)
+![RecruitAi Banner](https://img.shields.io/badge/RecruitAi-AI%20Recruitment%20Platform-00d4aa?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
 **A full-stack intelligent campus placement management system built with Spring Boot & vanilla JavaScript**
 
-[🌐 Live Demo](https://recruitai-pu35.onrender.com) • [📋 Features](#features) • [🛠 Tech Stack](#tech-stack) • [👥 Team](#team)
+🌐 [Live Demo](https://recruitai-pu35.onrender.com)
 
 </div>
 
@@ -16,7 +16,7 @@
 
 ## 📌 About
 
-**SmartRecruit** is a comprehensive campus recruitment platform that streamlines the entire placement process — from student registration and job applications to recruiter approvals and placement tracking.
+**RecruitAi** is a comprehensive campus recruitment platform that streamlines the entire placement process — from student registration and job applications to recruiter approvals and placement tracking.
 
 It connects **three types of users**:
 - 🎓 **Students** — Apply for jobs, track application status, access courses & mock interviews
@@ -59,7 +59,7 @@ It connects **three types of users**:
 | **Authentication** | JWT (JSON Web Tokens) |
 | **Database** | MySQL with Hibernate ORM |
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript |
-| **Deployment** | Render (Backend), GitHub (Source) |
+| **Deployment** | Render |
 | **Build Tool** | Maven |
 
 ---
@@ -76,7 +76,7 @@ It connects **three types of users**:
 
 - **Role-based access control** — Separate dashboards and APIs for each user type
 - **JWT Authentication** — Secure stateless authentication
-- **Auto-shortlisting** — System automatically matches eligible students to job criteria
+- **Auto-shortlisting** — Automatically matches eligible students to job criteria
 - **Real-time status updates** — Application pipeline with multiple stages
 - **Invite code system** — Controlled recruiter and admin registration
 - **Placement analytics** — Branch-wise placement tracking and reporting
@@ -85,7 +85,7 @@ It connects **three types of users**:
 
 ## 🏗 Project Structure
 ```
-SmartRecruit/
+RecruitAi/
 ├── src/main/java/
 │   ├── controller/        # REST API endpoints
 │   ├── service/           # Business logic
@@ -104,11 +104,14 @@ SmartRecruit/
 
 | Member | GitHub |
 |---|---|
-| Shashank Rai | [@Shashankrai30](https://github.com/Shashankrai30) |
 | Shanti Priya| [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
+| Shashank Rai | [@Shashankrai30](https://github.com/Shashankrai30) |
 
 ---
 
+## 📄 License
+
+This project is licensed under the MIT License.
 
 ---
 
