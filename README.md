@@ -1,120 +1,207 @@
-# 🎯 RecruitAi — AI-Powered Campus Recruitment Platform
-
 <div align="center">
 
-![RecruitAi Banner](https://img.shields.io/badge/RecruitAi-AI%20Recruitment%20Platform-00d4aa?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+# ✦ RecruitAi
 
-**A full-stack intelligent campus placement management system built with Spring Boot & vanilla JavaScript**
+### AI-Powered Campus Recruitment Platform
 
-🌐 [Live Demo](https://recruitai-pu35.onrender.com)
+<br>
+
+[![Live](https://img.shields.io/badge/🌐%20Live%20Demo-recruitai--pu35.onrender.com-00d4aa?style=for-the-badge&logoColor=white)](https://recruitai-pu35.onrender.com)
+
+<br>
+
+![Java](https://img.shields.io/badge/Java_17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot_3-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-black?style=flat-square&logo=jsonwebtokens&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square&logo=render&logoColor=white)
+
+<br>
+
+> A complete end-to-end campus placement management system that connects **students**, **recruiters**, and **college admins** on a single intelligent platform.
+
+<br>
 
 </div>
 
 ---
 
-## 📌 About
+<br>
 
-**RecruitAi** is a comprehensive campus recruitment platform that streamlines the entire placement process — from student registration and job applications to recruiter approvals and placement tracking.
+## 🌟 What is RecruitAi?
 
-It connects **three types of users**:
-- 🎓 **Students** — Apply for jobs, track application status, access courses & mock interviews
-- 🏢 **Recruiters** — Post jobs, manage applicants, shortlist & select candidates
-- 🏫 **College Admin** — Oversee all placements, manage recruiters, track placement stats
+**RecruitAi** eliminates the chaos of traditional campus recruitment. Instead of spreadsheets and emails, everything happens in one place — students apply, recruiters shortlist, and admins track placements in real time.
+
+<br>
+
+## 👥 Three Portals, One Platform
+
+<br>
+
+<table>
+<tr>
+<td width="33%" align="center">
+
+### 🎓 Student
+Register your profile with branch, CGPA, and skills. Browse active jobs, apply with one click, and track your application journey from Applied all the way to Selected.
+
+</td>
+<td width="33%" align="center">
+
+### 🏢 Recruiter
+Post jobs with eligibility criteria. The system **automatically shortlists** matching students. Review applicants, schedule interviews, and make offers — all from your dashboard.
+
+</td>
+<td width="33%" align="center">
+
+### 🏫 College Admin
+Full visibility over every placement. Approve or reject recruiter registrations, manage learning resources, and generate placement reports with branch-wise analytics.
+
+</td>
+</tr>
+</table>
+
+<br>
 
 ---
 
-## ✨ Features
+<br>
 
-### 🎓 Student Portal
-- Register and build a complete profile (branch, CGPA, skills, resume)
-- Browse and apply for active job postings
-- Real-time application status tracking (Applied → Shortlisted → Interview → Selected)
-- Access learning courses and mock interview resources
-- Placement status dashboard
+## ⚡ Key Features
 
-### 🏢 Recruiter Portal
-- Company profile management
-- Post detailed job listings with eligibility criteria
-- Auto-shortlist eligible students based on CGPA and branch
-- Manage applicants — shortlist, interview, select or reject
-- Create coding tests for candidates
-- View test results and performance
+<br>
 
-### 🏫 Admin Portal
-- Full student management with detailed profiles
-- Recruiter approval/rejection workflow
-- Course and mock interview management
-- Placement analytics and branch-wise reports
-- All job postings overview
+```
+🔐  JWT Authentication       Secure, stateless login for all user roles
+🎯  Auto-Shortlisting        Instantly matches students to job eligibility criteria
+📊  Placement Analytics      Branch-wise placement tracking and live statistics
+🔑  Invite Code System       Controlled registration for recruiters and admins
+📋  Application Pipeline     Applied → Shortlisted → Interview → Selected → Rejected
+💻  Coding Tests             Create and assign tests to shortlisted candidates
+📚  Learning Resources       Courses and mock interviews for student prep
+🔔  Notifications            Real-time updates on application status changes
+```
+
+<br>
 
 ---
+
+<br>
 
 ## 🛠 Tech Stack
 
+<br>
+
 | Layer | Technology |
-|---|---|
-| **Backend** | Java 17, Spring Boot 3, Spring Security |
-| **Authentication** | JWT (JSON Web Tokens) |
-| **Database** | MySQL with Hibernate ORM |
-| **Frontend** | HTML5, CSS3, Vanilla JavaScript |
-| **Deployment** | Render |
-| **Build Tool** | Maven |
+|:---:|:---|
+| 🖥 **Backend** | Java 17 + Spring Boot 3 + Spring Security |
+| 🔑 **Auth** | JWT (JSON Web Tokens) |
+| 🗄 **Database** | MySQL + Hibernate ORM (JPA) |
+| 🎨 **Frontend** | HTML5 + CSS3 + Vanilla JavaScript |
+| ☁️ **Deployment** | Render (Web Service) |
+| ⚙️ **Build** | Maven |
+
+<br>
 
 ---
+
+<br>
+
+## 🗂 Project Structure
+
+<br>
+
+```
+RecruitAi/
+│
+├── 📁 controller/          REST API endpoints (Auth, Student, Recruiter, Admin)
+├── 📁 service/             Business logic layer
+├── 📁 model/               Database entities (User, JobPosting, Application...)
+├── 📁 repository/          Spring Data JPA repositories
+├── 📁 dto/                 Request/Response data transfer objects
+├── 📁 security/            JWT filter, UserDetailsService
+│
+└── 📁 static/              Frontend HTML files
+    ├── index.html              Login page
+    ├── register.html           Registration page
+    ├── student-dashboard.html  Student portal
+    ├── recruiter-dashboard.html Recruiter portal
+    └── admin-dashboard.html    Admin portal
+```
+
+<br>
+
+---
+
+<br>
 
 ## 🚀 Live Demo
 
-🌐 **[https://recruitai-pu35.onrender.com](https://recruitai-pu35.onrender.com)**
+<div align="center">
 
-> ⚠️ Note: The app is hosted on Render's free tier. It may take 30-50 seconds to load on first visit as the server spins up from sleep.
+### 🌐 [https://recruitai-pu35.onrender.com](https://recruitai-pu35.onrender.com)
 
----
+</div>
 
-## ⚙️ Key Highlights
+<br>
 
-- **Role-based access control** — Separate dashboards and APIs for each user type
-- **JWT Authentication** — Secure stateless authentication
-- **Auto-shortlisting** — Automatically matches eligible students to job criteria
-- **Real-time status updates** — Application pipeline with multiple stages
-- **Invite code system** — Controlled recruiter and admin registration
-- **Placement analytics** — Branch-wise placement tracking and reporting
+> ⚠️ **Note:** Hosted on Render's free tier — first load may take **30–50 seconds** as the server wakes from sleep. Please be patient!
 
----
+<br>
 
-## 🏗 Project Structure
-```
-RecruitAi/
-├── src/main/java/
-│   ├── controller/        # REST API endpoints
-│   ├── service/           # Business logic
-│   ├── model/             # Database entities
-│   ├── repository/        # Data access layer
-│   ├── dto/               # Data transfer objects
-│   └── security/          # JWT authentication
-├── src/main/resources/
-│   └── static/            # Frontend HTML files
-└── pom.xml
-```
+| Role | Access |
+|:---:|:---|
+| 🎓 Student | Register as Student — open registration |
+| 🏢 Recruiter | Register as Recruiter — requires invite code |
+| 🏫 Admin | Register as College Admin — requires invite code |
+
+<br>
 
 ---
 
-## 👥 Team
+<br>
 
-| Member | GitHub |
-|---|---|
-| Shanti Priya| [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
-| Shashank Rai | [@Shashankrai30](https://github.com/Shashankrai30) |
+## 👨‍💻 Team
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
+<br>
 
 <div align="center">
-Made with ❤️ for Campus Placement Management
+
+<table>
+<tr>
+<td align="center" width="200">
+<br>
+<b>Shashank Rai</b>
+<br><br>
+<a href="https://github.com/Shashankrai30">
+<img src="https://img.shields.io/badge/GitHub-Shashankrai30-181717?style=flat-square&logo=github"/>
+</a>
+</td>
+<td align="center" width="200">
+<br>
+<b>Shanti</b>
+<br><br>
+<a href="https://github.com/ShantiPr28-byte">
+<img src="https://img.shields.io/badge/GitHub-ShantiPr28--byte-181717?style=flat-square&logo=github"/>
+</a>
+</td>
+</tr>
+</table>
+
+</div>
+
+<br>
+
+---
+
+<br>
+
+<div align="center">
+
+Made with ❤️ for smarter campus placements
+
+⭐ Star this repo if you found it useful!
+
 </div>
