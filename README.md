@@ -47,14 +47,7 @@ It connects **three types of users**:
 ---
 ## 🚀 Live Demo
 🌐 **[https://recruitai-pu35.onrender.com](https://recruitai-pu35.onrender.com)**
-> ⚠️ **Note:** The app is hosted on Render's free tier. It may take **30–50 seconds** to load on first visit as the server wakes up from sleep. Please be patient!
-
-> 📋 **How to access:**
-> | Role | Access |
-> |---|---|
-> | 🎓 Student | Register as Student — open registration |
-> | 🏢 Recruiter | Register as Recruiter — requires invite code from admin |
-> | 🏫 Admin | Register as College Admin — requires invite code from admin |
+> ⚠️ Note: The app is hosted on Render's free tier. It may take 30-50 seconds to load on first visit as the server spins up from sleep.
 ---
 ## ⚙️ Key Highlights
 - **Role-based access control** — Separate dashboards and APIs for each user type
@@ -82,9 +75,8 @@ RecruitAi/
 ## 👥 Team
 | Member | GitHub |
 |---|---|
-| Shanti Priya| [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
 | Shashank Rai | [@Shashankrai30](https://github.com/Shashankrai30) |
-
+| Shanti | [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
 ---
 ## 📄 License
 This project is licensed under the MIT License.
