@@ -105,7 +105,7 @@ SmartRecruit/
 | Member | GitHub |
 |---|---|
 | Shashank Rai | [@Shashankrai30](https://github.com/Shashankrai30) |
-| Shanti | [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
+| Shanti Priya| [@ShantiPr28-byte](https://github.com/ShantiPr28-byte) |
 
 ---
 
